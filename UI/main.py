@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, json, session, jsonify, flash
 from requests import Request, Session
+import requests
 
 app = Flask(__name__)
 
@@ -37,7 +38,32 @@ def login():
 
 @app.route('/sign_up')
 def sign_up():
-    return render_template('sign_up.html')
+    if request.method == 'GET':
+        return render_template('sign_up.html')
+    else:
+        _firstName = request.form['firstName']
+        _lastName = request.form['lastName']
+        _address = request.form['address']
+        _city = request.form['city']
+        _country = request.form['country']
+        _phoneNumber = request.form['number']
+        _email = request.form['email']
+        _password = request.form['password']
+        _cardNumber = 0
+        _cardExpDate = '0'
+        _cardCode = 0
+
+        header = {'Content-type' : 'application/json', 'Accept' : 'text/plain'}
+        body = json.dumps({'name' : _firstName, 'lastName' : _lastName, 'address' : _address, 'city' : _city, 'country' : _country, 'phoneNumber' : _phoneNumber, 'email' : _email, 'password' : _password, 'cardNumber' : _cardNumber, 'cardExpDate' : _cardExpDate, 'cardCode' : _cardCode})
+        req = requests.post("http://127.0.0.1:5001/sign_up", data = body, headers = header)
+        #req = requests.post("http://0.0.0.0:5001/sign_up", data = body, headers = header)
+
+        response = (req.json())
+        _message = response['message']
+        _code = req.status_code
+        if(_code == 200):
+            return "<p>USPELO</p>"
+        return "<p>Nije USPELO</p>"
 
 
 @app.route('/logout')
