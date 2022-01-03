@@ -36,7 +36,7 @@ def login():
     return render_template("login.html")
 
 
-@app.route('/sign_up')
+@app.route('/sign_up', methods=['GET', 'POST'])
 def sign_up():
     if request.method == 'GET':
         return render_template('sign_up.html')
@@ -62,8 +62,8 @@ def sign_up():
         _message = response['message']
         _code = req.status_code
         if(_code == 200):
-            return "<p>USPELO</p>"
-        return "<p>Nije USPELO</p>"
+            return "<p>USPELO</p>"  #ovde mozda prebaciti na to da unese podatke za karticu
+        return render_template('sign_up.html', message = _message)
 
 
 @app.route('/logout')
@@ -75,5 +75,5 @@ def logout():
 def user():
     return render_template('user.html')
 
-
-app.run(port=5000)
+if __name__ == "__main__":
+    app.run(port=5000)
