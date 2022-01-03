@@ -9,7 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from pymysql import cursors
 from models import user
-from dbFunctions import app, userExists, SignUpUser
+from dbFunctions import app, userExists, SignUpUser, LoginData
 
 @app.route('/sign_up', methods=['POST'])
 def signup():
@@ -37,6 +37,19 @@ def signup():
     retVal = {'message' : 'User successfully signed up'}, 200
 
     return retVal
+
+@app.route('/login', methods=['POST'])
+def login():
+    content = flask.request.json
+    _email = content['email']
+    _password = content['password']
+
+    if LoginData(_email, _password) == False:
+        retVal = {'message' : 'Wrong email or password'}, 400    
+        return retVal
+    else:
+        retVal = {'message' : 'User successfully loged in'}, 200
+        return retVal
 
 if __name__ == "__main__":
     app.run(port=5001)

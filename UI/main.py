@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, json, session, jsonify, flash
+from flask import Flask, render_template, request, json, session, jsonify, flash, redirect, url_for
+from flask.helpers import url_for
 from requests import Request, Session
 import requests
 
@@ -31,9 +32,32 @@ def home():
                            response=json.loads(response.text)['data'])
 
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template("login.html")
+    #mozemo mozda da ubacimo proveru da li vec posotiji neko u sesiji
+    if request.method == 'GET':
+        return render_template("login.html")
+    else:
+        _email = request.form['email']
+        _password = request.form['password']
+
+        header = {'Content-type' : 'application/json', 'Accept' : 'text/plain'}
+        body = json.dumps({'email' : _email, 'password' : _password})
+        req = requests.post("http://127.0.0.1:5001/login", data = body, headers = header)
+
+        response = (req.json())
+
+        _message = response['message']  
+        _code = req.status_code
+        if(_code == 200):
+            #znaci da je sve okej, da postoji korisnik sa datim emailom i lozinkom i ovde cemo da ga stavimo
+            # u sesiju i da vratimo stranicu recimo home
+            #session["usr"] = request.form['email'] #ovo iz nekog razloga ne radi
+            setattr(session, "user", _email)
+            return redirect(url_for("home"))
+        else:
+            # Vratimo login, sa ispisom wrong email or password
+            return render_template("login.html", message = _message)
 
 
 @app.route('/sign_up', methods=['GET', 'POST'])

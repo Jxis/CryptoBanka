@@ -58,3 +58,15 @@ def SignUpUser(name, lastName, address, city, country, phoneNumber, email, passw
     # INSERT INTO user VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     #mysql.connect().commit();
     #cursors.close();
+
+#Funkcija koja ucitava sve usere iz baze i proverava da li postoji korisnik sa datim emailom i lozinkom
+def LoginData(email: str, password: str) -> bool:
+    ret = False
+    list_of_users = user.User.query.all()
+    for temp in list_of_users:
+        if temp.email == email:
+            if temp.password == password:
+                ret = True
+            else:
+                ret = False
+    return ret
