@@ -2,8 +2,10 @@ from flask import Flask, render_template, request, json, session, jsonify, flash
 from flask.helpers import url_for
 from requests import Request, Session
 import requests
+from werkzeug.utils import redirect
 
 app = Flask(__name__)
+app.secret_key = 'key'
 
 ############### CRYPTO EXTERNAL API ######################
 
@@ -28,6 +30,7 @@ session.headers.update(headers)
 @app.route('/')
 def home():
     response = session.get(url, params=parameters)
+    setattr(session, "user", None)  #*****
     return render_template("home.html",
                            response=json.loads(response.text)['data'])
 
@@ -76,9 +79,11 @@ def sign_up():
         _cardNumber = 0
         _cardExpDate = '0'
         _cardCode = 0
+        _amount = -1
+
 
         header = {'Content-type' : 'application/json', 'Accept' : 'text/plain'}
-        body = json.dumps({'name' : _firstName, 'lastName' : _lastName, 'address' : _address, 'city' : _city, 'country' : _country, 'phoneNumber' : _phoneNumber, 'email' : _email, 'password' : _password, 'cardNumber' : _cardNumber, 'cardExpDate' : _cardExpDate, 'cardCode' : _cardCode})
+        body = json.dumps({'name' : _firstName, 'lastName' : _lastName, 'address' : _address, 'city' : _city, 'country' : _country, 'phoneNumber' : _phoneNumber, 'email' : _email, 'password' : _password, 'cardNumber' : _cardNumber, 'cardExpDate' : _cardExpDate, 'cardCode' : _cardCode, 'amount' : _amount})
         req = requests.post("http://127.0.0.1:5001/sign_up", data = body, headers = header)
         #req = requests.post("http://0.0.0.0:5001/sign_up", data = body, headers = header)
 
@@ -86,18 +91,51 @@ def sign_up():
         _message = response['message']
         _code = req.status_code
         if(_code == 200):
-            return "<p>USPELO</p>"  #ovde mozda prebaciti na to da unese podatke za karticu
+            setattr(session, "user", _email)
+            return redirect(url_for("verify"))
         return render_template('sign_up.html', message = _message)
 
 
 @app.route('/logout')
 def logout():
+    setattr(session, "user", None)
     return "<p>logout</p>"  #Napraviti da logout stranica bude Home ali sa porukom da je uspesno izlogovan, izbaci korisnika iz sesije
 
 
 @app.route('/user')
 def user():
     return render_template('user.html')
+
+
+@app.route('/verify', methods=['GET', 'POST'])
+def verify():
+    temp = getattr(session, "user")
+    if temp != None:
+        if request.method == 'GET':        
+            return render_template('verify.html')
+        else:
+            _cardNum = request.form['cardNum']
+            _name = request.form['name']
+            _expDate = request.form['expDate']
+            _cardCode = request.form['cardCode']
+            _amount = request.form['amount']
+            mejl = getattr(session, "user")
+            #mejl = session["user"]
+            #mejl = str(session.get('user'))
+
+            header = {'Content-type' : 'application/json', 'Accept' : 'text/plain'}
+            body = json.dumps({'cardNum' : _cardNum, 'name' : _name, 'expDate' : _expDate, 'cardCode' : _cardCode, "email" : mejl, 'amount' : _amount})
+            req = requests.post("http://127.0.0.1:5001/verify", data = body, headers = header)
+
+            response = (req.json())
+            _message = response['message']
+            _code = req.status_code
+            if(_code == 200):
+                return redirect(url_for("home"))
+            else:
+                return "GRESKA PRI VERIFIKACIJI"
+    else:
+        return redirect(url_for("login"))
 
 if __name__ == "__main__":
     app.run(port=5000)

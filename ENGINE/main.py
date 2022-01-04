@@ -9,7 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from pymysql import cursors
 from models import user
-from dbFunctions import app, userExists, SignUpUser, LoginData
+from dbFunctions import app, userExists, SignUpUser, LoginData, AddCardInfo, AddUserToWalletTable
 
 @app.route('/sign_up', methods=['POST'])
 def signup():
@@ -32,8 +32,9 @@ def signup():
     _cardNumber = content['cardNumber']
     _cardExpDate = content['cardExpDate']
     _cardCode = content['cardCode']
+    _amount = content['amount']
 
-    SignUpUser(_name, _lastName, _address, _city, _country, _phoneNumber, _email, _password, _cardNumber, _cardExpDate, _cardCode)
+    SignUpUser(_name, _lastName, _address, _city, _country, _phoneNumber, _email, _password, _cardNumber, _cardExpDate, _cardCode, _amount)
     retVal = {'message' : 'User successfully signed up'}, 200
 
     return retVal
@@ -49,6 +50,27 @@ def login():
         return retVal
     else:
         retVal = {'message' : 'User successfully loged in'}, 200
+        return retVal
+
+
+@app.route('/verify', methods=['POST'])
+def verify():
+    content = flask.request.json
+    _cardNum = content['cardNum']
+    _name = content['name']
+    _expDate = content['expDate']
+    _cardCode = content['cardCode']
+    _amount = content['amount']
+    _email = content['email']
+
+    AddUserToWalletTable(_email, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+    if AddCardInfo(_email, _cardNum, _name, _expDate, _cardCode, _amount):
+        retVal = {'message' : 'Successfully added data'}, 200    
+        print("Trebalo bi sve da je okej")
+        return retVal
+    else:
+        retVal = {'message' : 'Cant add card info'}, 400    
         return retVal
 
 if __name__ == "__main__":
