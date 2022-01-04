@@ -47,8 +47,8 @@ def userExists(email: str) -> bool:
             ret = True
     return ret
 
-def SignUpUser(name, lastName, address, city, country, phoneNumber, email, password, cardNumber, cardExpData, cardCode):
-    u = user.User(name, lastName, address, city, country, phoneNumber, email, password, cardNumber, cardExpData, cardCode)
+def SignUpUser(name, lastName, address, city, country, phoneNumber, email, password, cardNumber, cardExpData, cardCode,amount):
+    u = user.User(name, lastName, address, city, country, phoneNumber, email, password, cardNumber, cardExpData, cardCode, amount)
     db.session.add(u)
     db.session.commit()
 
@@ -70,3 +70,18 @@ def LoginData(email: str, password: str) -> bool:
             else:
                 ret = False
     return ret
+
+
+def AddCardInfo(email, cardNum, name, expDate, cardCode, amount):
+    if userExists(email) == True:
+        num_rows_updated = user.User.query.filter_by(email=email).update(dict(cardNumber = cardNum, cardExpDate = expDate, cardCode = cardCode, amount = amount))
+        db.session.commit()
+        return True
+    else:
+        return False
+
+#*****
+def AddUserToWalletTable(email, bitcoin, litecoin, xrp, dogecoin, stellar, ethereum, tron, chainlink, cardano, cosmos, polygon, solana, avalanche, polkadot):
+    u = user.Wallet(email, bitcoin, litecoin, xrp, dogecoin, stellar, ethereum, tron, chainlink, cardano, cosmos, polygon, solana, avalanche, polkadot)
+    db.session.add(u)
+    db.session.commit()
