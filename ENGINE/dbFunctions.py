@@ -81,7 +81,7 @@ def AddCardInfo(email, cardNum, name, expDate, cardCode, amount):
         return False
 
 #*****
-def AddUserToWalletTable(email, bitcoin, litecoin, xrp, dogecoin, stellar, ethereum, tron, chainlink, cardano, cosmos, polygon, solana, avalanche, polkadot):
-    u = user.Wallet(email, bitcoin, litecoin, xrp, dogecoin, stellar, ethereum, tron, chainlink, cardano, cosmos, polygon, solana, avalanche, polkadot)
+def AddUserToWalletTable(email, tether, bitcoin, litecoin, xrp, dogecoin, stellar, ethereum, tron, chainlink, cardano, cosmos, polygon, solana, avalanche, polkadot):
+    u = user.Wallet(email, tether, bitcoin, litecoin, xrp, dogecoin, stellar, ethereum, tron, chainlink, cardano, cosmos, polygon, solana, avalanche, polkadot)
     db.session.add(u)
     db.session.commit()
