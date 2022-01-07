@@ -11,7 +11,7 @@ class User(db.Model):
     phoneNumber = db.Column(db.String(32))
     email = db.Column(db.String(32), primary_key=True)
     password = db.Column(db.String(32))
-    cardNumber = db.Column(db.Integer)
+    cardNumber = db.Column(db.String(32))
     cardExpDate = db.Column(db.String(32))
     cardCode = db.Column(db.Integer)
     amount = db.Column(db.Integer)
@@ -41,7 +41,7 @@ class UserSchema(Schema):
     phoneNumber = fields.Str()
     email = fields.Str()
     password = fields.Str()
-    cardNumber = fields.Int()
+    cardNumber = fields.Str()
     cardExpDate = fields.Str()
     cardCode = fields.Int()
     amount = fields.Int()
@@ -50,6 +50,7 @@ class UserSchema(Schema):
 class Wallet(db.Model):
     __tablename__ = 'wallet' #ovo je da znamo na koju tabelu u bazi se refereciramo
     userEmail = db.Column(db.String(32), primary_key=True)
+    tether = db.Column(db.Float(38,10))
     bitcoin = db.Column(db.Float(38,10))
     litecoin = db.Column(db.Float(38,10))
     xrp  = db.Column(db.Float(38,10))
@@ -65,7 +66,8 @@ class Wallet(db.Model):
     avalanche = db.Column(db.Float(38,10))
     polkadot = db.Column(db.Float(38,10))
 
-    def __init__(self, _userEmail, _bitcoin, _litecoin, _xrp, _dogecoin, _stellar, _ethereum, _tron, _chainlink, _cardano, _cosmos, _polygon, _solana, _avalanche, _polkadot):
+    def __init__(self, _userEmail, _tether, _bitcoin, _litecoin, _xrp, _dogecoin, _stellar, _ethereum, _tron, _chainlink, _cardano, _cosmos, _polygon, _solana, _avalanche, _polkadot):
+        self.tether = _tether
         self.userEmail = _userEmail
         self.bitcoin = _bitcoin
         self.litecoin = _litecoin

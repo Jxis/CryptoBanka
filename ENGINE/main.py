@@ -63,7 +63,7 @@ def verify():
     _amount = content['amount']
     _email = content['email']
 
-    AddUserToWalletTable(_email, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    AddUserToWalletTable(_email, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
     if AddCardInfo(_email, _cardNum, _name, _expDate, _cardCode, _amount):
         retVal = {'message' : 'Successfully added data'}, 200    
