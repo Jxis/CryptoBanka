@@ -161,7 +161,7 @@ def verify():
             if (_code == 200):
                 return redirect(url_for("home"))
             else:
-                return "GRESKA PRI VERIFIKACIJI"
+                return render_template("verify.html", message = _message)
     else:
         return redirect(url_for("login"))
 

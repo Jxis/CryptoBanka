@@ -63,9 +63,24 @@ def verify():
     _amount = content['amount']
     _email = content['email']
 
+    if len(_cardNum) != 16:
+        retVal = {'message' : 'Wrong card number.'}, 400    
+        return retVal
+    elif len(_cardCode) != 3:
+        retVal = {'message' : 'Wrong card code.'}, 400    
+        return retVal
+    elif int(_amount) < 1:
+        retVal = {'message' : 'You need to have more than 1$ on your bank account.'}, 400    
+        return retVal
+    #elif date(_expDate, '%m/%d/%y') <= datetime.now:
+    #    retVal = {'message' : 'Your bank card expired.'}, 400    
+    #    return retVal
+
+    newAmount = int(_amount) - 1;
+
     AddUserToWalletTable(_email, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
-    if AddCardInfo(_email, _cardNum, _name, _expDate, _cardCode, _amount):
+    if AddCardInfo(_email, _cardNum, _name, _expDate, _cardCode, newAmount):
         retVal = {'message' : 'Successfully added data'}, 200    
         print("Trebalo bi sve da je okej")
         return retVal
