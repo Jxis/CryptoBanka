@@ -16,17 +16,28 @@
     </thead>
     <tbody>
         
-            {% for mainkey in response %}
+        {% for mainkey in response %}
           
         <tr>
-    <td style="border: 1px solid black;">{{response[mainkey]['name']}}</td>
-    <td style="border: 1px solid black;">{{response[mainkey]['symbol']}}</td>
-    <td style="border: 1px solid black;">{{response[mainkey]['quote']['USD']['price']}}</td>
-    <td style="border: 1px solid black;">{{response[mainkey]['quote']['USD']['market_cap']}}</td>
-    <td style="border: 1px solid black;"><button style="width: 100%; border: none; background: transparent;">Click on me</button></td>
-</tr>
+
+        <td style="border: 1px solid black;">{{response[mainkey]['name']}}</td>
+         <td style="border: 1px solid black;">{{response[mainkey]['symbol']}}</td>
+          <td style="border: 1px solid black;">{{response[mainkey]['quote']['USD']['price']}}</td>
+         <td style="border: 1px solid black;">{{response[mainkey]['quote']['USD']['market_cap']}}</td>
+         <td style="border: 1px solid black;"><button onclick="tradeFunction(`{{mainkey}}`)" style="width: 100%; border: none; background: transparent;">Click on me</button></td>
+        </tr>
+
+        
          
-            {% endfor %}
+        {% endfor %}
+
+        <script>
+            function tradeFunction(value) {
+                
+                console.log(value);
+                window.location.href=`http://127.0.0.1:5000/trade?token=${value}`;
+            }
+        </script>
       
     </tbody>
 

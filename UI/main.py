@@ -44,15 +44,17 @@ def login():
         _email = request.form['email']
         _password = request.form['password']
 
-        header = {'Content-type' : 'application/json', 'Accept' : 'text/plain'}
-        body = json.dumps({'email' : _email, 'password' : _password})
-        req = requests.post("http://127.0.0.1:5001/login", data = body, headers = header)
+        header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+        body = json.dumps({'email': _email, 'password': _password})
+        req = requests.post("http://127.0.0.1:5001/login",
+                            data=body,
+                            headers=header)
 
         response = (req.json())
 
-        _message = response['message']  
+        _message = response['message']
         _code = req.status_code
-        if(_code == 200):
+        if (_code == 200):
             #znaci da je sve okej, da postoji korisnik sa datim emailom i lozinkom i ovde cemo da ga stavimo
             # u sesiju i da vratimo stranicu recimo home
             #session["usr"] = request.form['email'] #ovo iz nekog razloga ne radi
@@ -60,7 +62,7 @@ def login():
             return redirect(url_for("home"))
         else:
             # Vratimo login, sa ispisom wrong email or password
-            return render_template("login.html", message = _message)
+            return render_template("login.html", message=_message)
 
 
 @app.route('/sign_up', methods=['GET', 'POST'])
@@ -81,19 +83,33 @@ def sign_up():
         _cardCode = 0
         _amount = -1
 
-
-        header = {'Content-type' : 'application/json', 'Accept' : 'text/plain'}
-        body = json.dumps({'name' : _firstName, 'lastName' : _lastName, 'address' : _address, 'city' : _city, 'country' : _country, 'phoneNumber' : _phoneNumber, 'email' : _email, 'password' : _password, 'cardNumber' : _cardNumber, 'cardExpDate' : _cardExpDate, 'cardCode' : _cardCode, 'amount' : _amount})
-        req = requests.post("http://127.0.0.1:5001/sign_up", data = body, headers = header)
+        header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+        body = json.dumps({
+            'name': _firstName,
+            'lastName': _lastName,
+            'address': _address,
+            'city': _city,
+            'country': _country,
+            'phoneNumber': _phoneNumber,
+            'email': _email,
+            'password': _password,
+            'cardNumber': _cardNumber,
+            'cardExpDate': _cardExpDate,
+            'cardCode': _cardCode,
+            'amount': _amount
+        })
+        req = requests.post("http://127.0.0.1:5001/sign_up",
+                            data=body,
+                            headers=header)
         #req = requests.post("http://0.0.0.0:5001/sign_up", data = body, headers = header)
 
         response = (req.json())
         _message = response['message']
         _code = req.status_code
-        if(_code == 200):
+        if (_code == 200):
             setattr(session, "user", _email)
             return redirect(url_for("verify"))
-        return render_template('sign_up.html', message = _message)
+        return render_template('sign_up.html', message=_message)
 
 
 @app.route('/logout')
@@ -111,7 +127,7 @@ def user():
 def verify():
     temp = getattr(session, "user")
     if temp != None:
-        if request.method == 'GET':        
+        if request.method == 'GET':
             return render_template('verify.html')
         else:
             _cardNum = request.form['cardNum']
@@ -123,19 +139,40 @@ def verify():
             #mejl = session["user"]
             #mejl = str(session.get('user'))
 
-            header = {'Content-type' : 'application/json', 'Accept' : 'text/plain'}
-            body = json.dumps({'cardNum' : _cardNum, 'name' : _name, 'expDate' : _expDate, 'cardCode' : _cardCode, "email" : mejl, 'amount' : _amount})
-            req = requests.post("http://127.0.0.1:5001/verify", data = body, headers = header)
+            header = {
+                'Content-type': 'application/json',
+                'Accept': 'text/plain'
+            }
+            body = json.dumps({
+                'cardNum': _cardNum,
+                'name': _name,
+                'expDate': _expDate,
+                'cardCode': _cardCode,
+                "email": mejl,
+                'amount': _amount
+            })
+            req = requests.post("http://127.0.0.1:5001/verify",
+                                data=body,
+                                headers=header)
 
             response = (req.json())
             _message = response['message']
             _code = req.status_code
-            if(_code == 200):
+            if (_code == 200):
                 return redirect(url_for("home"))
             else:
                 return "GRESKA PRI VERIFIKACIJI"
     else:
         return redirect(url_for("login"))
+
+
+@app.route('/trade')
+def trade():
+    response = session.get(url, params=parameters)
+    setattr(session, "user", None)  #*****
+    return render_template("trade.html",
+                           response=json.loads(response.text)['data'])
+
 
 if __name__ == "__main__":
     app.run(port=5000)
