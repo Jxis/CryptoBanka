@@ -1,0 +1,21 @@
+{% extends "base.html" %} {% block title %}Trade{% endblock %}
+
+{% block content %}
+
+
+
+{% for mainkey in response %}
+
+
+{% if mainkey == request.args.get('token') %}
+<h1>Kriptovaluta: {{response[mainkey]['name']}}</h1>
+
+{% endif %}
+
+
+
+
+ 
+{% endfor %}
+
+{% endblock %}
