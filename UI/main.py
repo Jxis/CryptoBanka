@@ -1,3 +1,4 @@
+from types import MethodDescriptorType
 from flask import Flask, render_template, request, json, session, jsonify, flash, redirect, url_for
 from flask.helpers import url_for
 from requests import Request, Session
@@ -22,15 +23,19 @@ headers = {
     'X-CMC_PRO_API_KEY':
     'af2460d3-d55c-4349-8e18-eb2844eb0058'  # napravila poseban acc na coinmarketcap za drs
 }
+
 session = Session()
 session.headers.update(headers)
+
+#app.config["SESSION_PERMANENT"] = False
+#app.config["SESSION_TYPE"] = "filesystem"
+#Session(app)
 ##########################################################
 
 
 @app.route('/')
 def home():
     response = session.get(url, params=parameters)
-    setattr(session, "user", None)  #*****
     return render_template("home.html",
                            response=json.loads(response.text)['data'])
 
@@ -59,6 +64,7 @@ def login():
             # u sesiju i da vratimo stranicu recimo home
             #session["usr"] = request.form['email'] #ovo iz nekog razloga ne radi
             setattr(session, "user", _email)
+            #session["user_email"] = _email
             return redirect(url_for("home"))
         else:
             # Vratimo login, sa ispisom wrong email or password
@@ -108,6 +114,7 @@ def sign_up():
         _code = req.status_code
         if (_code == 200):
             setattr(session, "user", _email)
+            #session["user_email"] = _email
             return redirect(url_for("verify"))
         return render_template('sign_up.html', message=_message)
 
@@ -118,10 +125,64 @@ def logout():
     return "<p>logout</p>"  #Napraviti da logout stranica bude Home ali sa porukom da je uspesno izlogovan, izbaci korisnika iz sesije
 
 
-@app.route('/user')
+@app.route('/user', methods=['GET', 'PUT'])
 def user():
-    return render_template('user.html')
+    if request.method == 'GET':
+        #_email = session.get("user_email")
+        #session["user"] = "nesto"
+        _email = getattr(session, "user")
+        if _email == None:
+            return "<p>User not logged in.</p>"
+        body = json.dumps({'email' : _email})
+        pars = json.dumps({'email':_email})
+        header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+        req = requests.get("http://127.0.0.1:5001/user?email={}".format(_email),
+                            #params=pars,
+                            #data=body,
+                            #params= {'email':_email},                            
+                            headers=header)
+        response = json.loads(jsonify(req.text).json)
 
+        name = response['name']
+        lastName = response['lastName']
+        address = response['address']
+        city = response['city']
+        country = response['country']
+        phoneNumber = response['phoneNumber']
+        email = response['email']
+        password = response['password']
+        cardNumber = response['cardNumber']
+        cardExpDate = response['cardExpDate']
+        cardCode = response['cardCode']
+        amount = response['amount']
+
+        user_data = {
+            'name': name,
+            'lastName': lastName,
+            'address': address,
+            'city': city,
+            'country': country,
+            'phoneNumber': phoneNumber,
+            'email': email,
+            'password': password,
+            'cardNumber': cardNumber,
+            'cardExpDate': cardExpDate,
+            'cardCode': cardCode,
+            'amount': amount
+        }
+
+        _code = req.status_code
+        if (_code == 200):
+            setattr(session, "user_data", user_data)
+            if cardNumber != None:
+                verified = True
+            else:
+                verified = False
+            #return redirect(url_for("user"), user_data = user_data)
+            return render_template("user.html", user_data = user_data, boolean = verified)
+        return render_template('login.html') #, message=_message)
+
+    return "<p>U procesu izrade.</p>"
 
 @app.route('/verify', methods=['GET', 'POST'])
 def verify():

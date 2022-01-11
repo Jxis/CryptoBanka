@@ -1,0 +1,13 @@
+create table user(
+name varchar(255),
+lastName varchar(255),
+address varchar(255),
+city varchar(255),
+country varchar(255),
+phoneNumber varchar(255),
+email varchar(255),
+password varchar(255),
+cardNumber varchar(255),
+cardExpDate varchar(255),
+cardCode int,
+amount int);

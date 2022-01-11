@@ -3,7 +3,7 @@ import flask
 from flaskext.mysql import MySQL
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-from pymysql import cursors
+from pymysql import NULL, cursors
 from models import user
 
 db=SQLAlchemy()
@@ -46,6 +46,14 @@ def userExists(email: str) -> bool:
         if temp.email == email:
             ret = True
     return ret
+
+def getUser(email):
+    if(userExists(email)):
+        users = user.User.query.all()
+        for temp in users:
+            if temp.email == email:
+                return temp
+    return NULL
 
 def SignUpUser(name, lastName, address, city, country, phoneNumber, email, password, cardNumber, cardExpData, cardCode,amount):
     u = user.User(name, lastName, address, city, country, phoneNumber, email, password, cardNumber, cardExpData, cardCode, amount)

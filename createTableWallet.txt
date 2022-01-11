@@ -1,0 +1,17 @@
+create table wallet(
+userEmail varchar(255),
+tether decimal(38,10),
+bitcoin decimal(38,10),
+litecoin decimal(38,10),
+xrp decimal(38,10),
+dogecoin decimal(38,10),
+stellar decimal(38,10),
+ethereum decimal(38,10),
+tron decimal(38,10),
+chainlink decimal(38,10),
+cardano decimal(38,10),
+cosmos decimal(38,10),
+polygon decimal(38,10),
+solana decimal(38,10),
+avalanche decimal(38,10),
+polkadot decimal(38,10));
