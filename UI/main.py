@@ -125,62 +125,57 @@ def logout():
     setattr(session, "user", None)
     return render_template("home.html", message="User loggged out.")
 
-@app.route('/user', methods=['GET', 'PUT'])
+@app.route('/user', methods=['GET'])
 def user():
-    if request.method == 'GET':
-        #_email = session.get("user_email")
-        #session["user"] = "nesto"
-        _email = getattr(session, "user")
-        if _email == None:
-            return "<p>User not logged in.</p>"
-        body = json.dumps({'email' : _email})
-        pars = json.dumps({'email':_email})
-        header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-        req = requests.get("http://127.0.0.1:5001/user?email={}".format(_email),
-                            #params=pars,
-                            #data=body,
-                            #params= {'email':_email},                            
-                            headers=header)
-        response = json.loads(jsonify(req.text).json)
+    #_email = session.get("user_email")
+    #session["user"] = "nesto"
+    _email = getattr(session, "user")
+    if _email == None:
+        return "<p>User not logged in.</p>"
+    header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    req = requests.get("http://127.0.0.1:5001/user?email={}".format(_email),                           
+                        headers=header)
+    response = json.loads(jsonify(req.text).json)
 
-        name = response['name']
-        lastName = response['lastName']
-        address = response['address']
-        city = response['city']
-        country = response['country']
-        phoneNumber = response['phoneNumber']
-        email = response['email']
-        password = response['password']
-        cardNumber = response['cardNumber']
-        cardExpDate = response['cardExpDate']
-        cardCode = response['cardCode']
-        amount = response['amount']
+    name = response['name']
+    lastName = response['lastName']
+    address = response['address']
+    city = response['city']
+    country = response['country']
+    phoneNumber = response['phoneNumber']
+    email = response['email']
+    password = response['password']
+    cardNumber = response['cardNumber']
+    cardExpDate = response['cardExpDate']
+    cardCode = response['cardCode']
+    amount = response['amount']
 
-        user_data = {
-            'name': name,
-            'lastName': lastName,
-            'address': address,
-            'city': city,
-            'country': country,
-            'phoneNumber': phoneNumber,
-            'email': email,
-            'password': password,
-            'cardNumber': cardNumber,
-            'cardExpDate': cardExpDate,
-            'cardCode': cardCode,
-            'amount': amount
-        }
+    user_data = {
+        'name': name,
+        'lastName': lastName,
+        'address': address,
+        'city': city,
+        'country': country,
+        'phoneNumber': phoneNumber,
+        'email': email,
+        'password': password,
+        'cardNumber': cardNumber,
+        'cardExpDate': cardExpDate,
+        'cardCode': cardCode,
+        'amount': amount
+    }
 
-        _code = req.status_code
-        if (_code == 200):
-            setattr(session, "user_data", user_data)
-            if cardNumber != None:
-                verified = True
-            else:
-                verified = False
-            #return redirect(url_for("user"), user_data = user_data)
-            return render_template("user.html", user_data = user_data, boolean = verified)
-        return render_template('login.html') #, message=_message)
+    _code = req.status_code
+    if (_code == 200):
+        setattr(session, "user_data", user_data)
+        if cardNumber != None:
+            verified = True
+        else:
+            verified = False
+        setattr(session, 'verified', verified)
+        #return redirect(url_for("user"), user_data = user_data)
+        return render_template("user.html", user_data = user_data, boolean = verified)
+    return render_template('login.html') #, message=_message)
 
     return "<p>U procesu izrade.</p>"
 
@@ -220,6 +215,7 @@ def verify():
             _message = response['message']
             _code = req.status_code
             if (_code == 200):
+                setattr(session, 'verified', True)
                 return redirect(url_for("home"))
             else:
                 return render_template("verify.html", message = _message)
@@ -241,8 +237,48 @@ def editUser():
         return render_template("editUser.html", user_data=user_data)
     else:
         #logika za cuvanje podataka u bazi
+        user_data = getattr(session, "user_data")
+        _email = getattr(session, "user")
+        _firstName = request.form['name']
+        _lastName = request.form['lastName']
+        _address = request.form['address']
+        _city = request.form['city']
+        _country = request.form['country']
+        _phoneNumber = request.form['phoneNumber']
+        _oldPassword = request.form['oldPassword']
+        _newPassword1 = request.form['newPassword1']
+        _newPassword2 = request.form['newPassword2']
 
-        return redirect(url_for("user"))
+        if _newPassword1 != "" and _newPassword1 != '':
+            if user_data['password'] != _oldPassword:
+                _message = "Check your old password again."
+                render_template('sign_up.html', message=_message)
+
+            if _newPassword1 != _newPassword2:
+                _message = "Passwords don't match."
+                render_template('sign_up.html', message=_message)
+
+        header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+        body = json.dumps({
+            'name': _firstName,
+            'lastName': _lastName,
+            'address': _address,
+            'city': _city,
+            'country': _country,
+            'phoneNumber': _phoneNumber,
+            'email': _email,
+            'password': _newPassword1
+        })
+        req = requests.post("http://127.0.0.1:5001/editUser",
+                            data=body,
+                            headers=header)
+
+        response = (req.json())
+        _message = response['message']
+        _code = req.status_code
+        if (_code == 200):
+            return redirect(url_for("user"))
+        return redirect(url_for("editUser"), message = _message)
 
 @app.route('/wallet')
 def wallet():

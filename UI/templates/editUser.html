@@ -5,6 +5,7 @@
 {% set name = user_data['name'] %}
 {% set lastName = user_data['lastName'] %}
 {% set email = user_data['email'] %}
+{% set phoneNumber = user_data['phoneNumber'] %}
 {% set address = user_data['address'] %}
 {% set city = user_data['city'] %}
 {% set country = user_data['country'] %}
@@ -13,7 +14,7 @@
 <br>
 
 <form method="POST" action="/editUser">
-    <h3 align="center">Edit user</h3>
+    <h3 align="center">Edit user : {{ email }}</h3>
 
     <div class="form-group">
         <label for="name">Name</label>
@@ -26,18 +27,23 @@
     </div>
 
     <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" class="form-control" id="email" name="email" value='{{ email }}' >
-    </div>
-
-    <div class="form-group">
         <label for="oldPassword">Old password</label>
         <input type="text" class="form-control" id="oldPassword" name="oldPassword" >
     </div>
 
     <div class="form-group">
         <label for="newPassword">New password</label>
-        <input type="text" class="form-control" id="newPassword" name="newPassword" >
+        <input type="text" class="form-control" id="newPassword1" name="newPassword1" >
+    </div>
+
+    <div class="form-group">
+        <label for="checkNewPassword">Check new password</label>
+        <input type="text" class="form-control" id="newPassword2" name="newPassword2" >
+    </div>
+
+    <div class="form-group">
+        <label for="phoneNumber">Phone number</label>
+        <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" value='{{ phoneNumber }}'>
     </div>
 
     <div class="form-group">

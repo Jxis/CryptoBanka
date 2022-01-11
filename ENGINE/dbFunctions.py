@@ -67,6 +67,18 @@ def SignUpUser(name, lastName, address, city, country, phoneNumber, email, passw
     #mysql.connect().commit();
     #cursors.close();
 
+def UpdateUser(name, lastName, address, city, country, phoneNumber, email, password):
+    u = getUser(email)
+    u.name = name
+    u.lastName = lastName
+    u.address = address
+    u.city = city
+    u.country = country
+    u.phoneNumber = phoneNumber
+    if(password != '' and password != ""):
+        u.password = password
+    db.session.commit()
+
 #Funkcija koja ucitava sve usere iz baze i proverava da li postoji korisnik sa datim emailom i lozinkom
 def LoginData(email: str, password: str) -> bool:
     ret = False
