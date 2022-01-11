@@ -10,7 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from pymysql import cursors
 from models import user
-from dbFunctions import app, userExists, SignUpUser, LoginData, AddCardInfo, AddUserToWalletTable, getUser,addKriptoToWallet, getUsersWallet, updateUserAmount
+from dbFunctions import app, userExists, SignUpUser, LoginData, AddCardInfo, AddUserToWalletTable, getUser,addKriptoToWallet, getUsersWallet, updateUserAmount, UpdateUser, AddMoneyToCard
 
 @app.route('/sign_up', methods=['POST'])
 def signup():
@@ -104,35 +104,66 @@ def kupi():
             updateUserAmount(_mejl, user.amount)
             addKriptoToWallet(_mejl, _nazivKripta, _kolikoKripta)
             
-
-    
-@app.route('/user', methods=['GET', 'PUT', 'POST'])
+@app.route('/user', methods=['GET'])
 def user():
-    if request.method == 'GET':
-        content = flask.request.args
+    content = flask.request.args
+    email = content['email']
+    
+    if not userExists(email):
+        return {'message': 'User does not exist.'}
+    user = getUser(email)
+    user_data = {
+        'name': user.name,
+        'lastName': user.lastName,
+        'address': user.address,
+        'city': user.city,
+        'country': user.country,
+        'phoneNumber': user.phoneNumber,
+        'email': user.email,
+        'password': user.password,
+        'cardNumber': user.cardNumber,
+        'cardExpDate': user.cardExpDate,
+        'cardCode': user.cardCode,
+        'amount': user.amount
+    }
 
-        email = content['email']
-        #email = request.args.get('email')
-        if not userExists(email):
-            return "<p>User doesn't exist.</p>"
-        user = getUser(email)
-        user_data = {
-            'name': user.name,
-            'lastName': user.lastName,
-            'address': user.address,
-            'city': user.city,
-            'country': user.country,
-            'phoneNumber': user.phoneNumber,
-            'email': user.email,
-            'password': user.password,
-            'cardNumber': user.cardNumber,
-            'cardExpDate': user.cardExpDate,
-            'cardCode': user.cardCode,
-            'amount': user.amount
-        }
-        return user_data
-    else:
-        return 1
+    return user_data
+
+@app.route('/editUser', methods=['POST'])
+def editUser():
+    content = flask.request.json
+    _email = content['email']
+
+    if not userExists(_email):
+        retVal = {'message' : 'User with this email doesn-t exist'}, 400
+        return retVal
+
+    _name = content['name']
+    _lastName = content['lastName']
+    _address = content['address']
+    _city = content['city']
+    _country = content['country']
+    _phoneNumber = content['phoneNumber']
+    _password = content['password']
+  
+    UpdateUser(_name, _lastName, _address, _city, _country, _phoneNumber, _email, _password)
+    retVal = {'message' : 'User successfully updated.'}, 200
+
+    return retVal
+
+@app.route("/addMoney", methods=['POST'])
+def addMoney():
+    content = flask.request.json
+    _email = content['email']
+    _addedMoney = content['addedMoney']
+
+    if not userExists(_email):
+        retVal = {'message' : 'User with this email doesn-t exist'}, 400
+        return retVal
+    
+    AddMoneyToCard(_email, _addedMoney)
+    retVal = {'message' : 'Money successfully added.'}, 200
+    return retVal
 
 if __name__ == "__main__":
     app.run(port=5001)

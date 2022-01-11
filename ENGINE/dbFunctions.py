@@ -53,7 +53,7 @@ def getUser(email):
         for temp in users:
             if temp.email == email:
                 return temp
-    return NULL
+    return None
 
 def updateUserAmount(email, amount):
     user = getUser(email)
@@ -71,6 +71,18 @@ def SignUpUser(name, lastName, address, city, country, phoneNumber, email, passw
     # INSERT INTO user VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     #mysql.connect().commit();
     #cursors.close();
+
+def UpdateUser(name, lastName, address, city, country, phoneNumber, email, password):
+    u = getUser(email)
+    u.name = name
+    u.lastName = lastName
+    u.address = address
+    u.city = city
+    u.country = country
+    u.phoneNumber = phoneNumber
+    if(password != '' and password != ""):
+        u.password = password
+    db.session.commit()
 
 #Funkcija koja ucitava sve usere iz baze i proverava da li postoji korisnik sa datim emailom i lozinkom
 def LoginData(email: str, password: str) -> bool:
@@ -140,3 +152,9 @@ def addKriptoToWallet(email, kriptoName, kriptoAmount):
         case 'polkadot':
             wallet.tether += kriptoAmount 
     db.session.commit();
+def AddMoneyToCard(email, addedMoney):
+    u = getUser(email)
+    if u == None:
+        return
+    u.amount += int(addedMoney)
+    db.session.commit()
