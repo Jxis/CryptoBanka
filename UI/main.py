@@ -114,6 +114,7 @@ def sign_up():
         _code = req.status_code
         if (_code == 200):
             setattr(session, "user", _email)
+            setattr(app, "user", _email)
             #session["user_email"] = _email
             return redirect(url_for("verify"))
         return render_template('sign_up.html', message=_message)
@@ -231,14 +232,14 @@ def verify():
 def trade():
     if request.method == "GET":
         response = session.get(url, params=parameters)
-        setattr(session, "user", None)  #*****
         return render_template("trade.html", response=json.loads(response.text)['data'])
 
-@app.route('/kupi')
+@app.route('/buyKripto', methods=['GET', 'POST'])
 def kupi():
     #napravi da se skida nova i sve to cu sutra
-    _nazivKripta = request.url['nazivKripta']
-    _kolikoKripta = request.url['kolikoKriptoa']
+    _nazivKripta = request.args.get('nazivKripta')
+    _kolikoKripta = request.args.get('kolikoKripta')
+    _kolikoNovca = request.args.get('kolicinaNovca')
     _mejl = getattr(session, "user")
 
     header = {
@@ -248,10 +249,11 @@ def kupi():
     body = json.dumps({
         'nazivKripta' : _nazivKripta,
         'kolikoKripta' : _kolikoKripta,
+        'kolikoNovca' : _kolikoNovca,
         'mejl' : _mejl
     })
 
-    req = requests.post("http://127.0.0.1:5001/kupi", data=body, headers=header)
+    req = requests.post("http://127.0.0.1:5001/buyKripto", data=body, headers=header)
     response = (req.json())
     _message = response['message']
     _code = req.status_code

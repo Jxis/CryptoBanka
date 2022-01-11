@@ -55,6 +55,11 @@ def getUser(email):
                 return temp
     return NULL
 
+def updateUserAmount(email, amount):
+    user = getUser(email)
+    user.amaunt = amount
+    db.session.commit()
+
 def SignUpUser(name, lastName, address, city, country, phoneNumber, email, password, cardNumber, cardExpData, cardCode,amount):
     u = user.User(name, lastName, address, city, country, phoneNumber, email, password, cardNumber, cardExpData, cardCode, amount)
     db.session.add(u)
@@ -93,3 +98,45 @@ def AddUserToWalletTable(email, tether, bitcoin, litecoin, xrp, dogecoin, stella
     u = user.Wallet(email, tether, bitcoin, litecoin, xrp, dogecoin, stellar, ethereum, tron, chainlink, cardano, cosmos, polygon, solana, avalanche, polkadot)
     db.session.add(u)
     db.session.commit()
+
+def getUsersWallet(email):
+    wallets = user.Wallet.query.all()
+    for temp in wallets:
+        if temp.email == email:
+            return temp
+    return NULL
+
+def addKriptoToWallet(email, kriptoName, kriptoAmount):
+    wallet = getUsersWallet(email)
+    match kriptoName:
+        case 'tether':
+            wallet.tether += kriptoAmount 
+        case 'bitcoin':
+            wallet.tether += kriptoAmount 
+        case 'litecoin':
+            wallet.tether += kriptoAmount 
+        case 'xrp':
+            wallet.tether += kriptoAmount 
+        case 'dogecoin':
+            wallet.tether += kriptoAmount 
+        case 'stellar':
+            wallet.tether += kriptoAmount 
+        case 'ethereum':
+            wallet.tether += kriptoAmount 
+        case 'tron':
+            wallet.tether += kriptoAmount 
+        case 'chainlink':
+            wallet.tether += kriptoAmount
+        case 'cardano':
+            wallet.tether += kriptoAmount 
+        case 'cosmos':
+            wallet.tether += kriptoAmount 
+        case 'polygon':
+            wallet.tether += kriptoAmount 
+        case 'solana':
+            wallet.tether += kriptoAmount 
+        case 'avalanche':
+            wallet.tether += kriptoAmount 
+        case 'polkadot':
+            wallet.tether += kriptoAmount 
+    db.session.commit();
