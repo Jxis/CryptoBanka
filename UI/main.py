@@ -4,6 +4,7 @@ from flask.helpers import url_for
 from requests import Request, Session
 import requests
 from werkzeug.utils import redirect
+from werkzeug.wrappers import response
 
 app = Flask(__name__)
 app.secret_key = 'key'
@@ -122,8 +123,7 @@ def sign_up():
 @app.route('/logout')
 def logout():
     setattr(session, "user", None)
-    return "<p>logout</p>"  #Napraviti da logout stranica bude Home ali sa porukom da je uspesno izlogovan, izbaci korisnika iz sesije
-
+    return render_template("home.html", message="User loggged out.")
 
 @app.route('/user', methods=['GET', 'PUT'])
 def user():
@@ -234,6 +234,19 @@ def trade():
     return render_template("trade.html",
                            response=json.loads(response.text)['data'])
 
+@app.route('/editUser', methods=['GET', 'POST'])
+def editUser():
+    if request.method == 'GET':
+        user_data = getattr(session, "user_data")
+        return render_template("editUser.html", user_data=user_data)
+    else:
+        #logika za cuvanje podataka u bazi
+
+        return redirect(url_for("user"))
+
+@app.route('/wallet')
+def wallet():
+    return render_template("wallet.html")
 
 if __name__ == "__main__":
     app.run(port=5000)

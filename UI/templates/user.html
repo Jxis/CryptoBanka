@@ -3,31 +3,34 @@
 {% block content %}
 
 </br>
-<h1 align="center">Informacije o korisniku:</h1></br>
-<h4>{{ user_data['name']}} {{ user_data['lastName'] }}</h4>
+<h1 align="center">Informacije o korisniku:</h1><br>
+<h4>{{ user_data['name']}} {{ user_data['lastName'] }}</h4><br>
 <p>Email: {{user_data['email']}}</p>
 <p>Adresa: {{user_data['address']}}</p>
 <p>Grad: {{ user_data['city'] }}</p>
 <p>Drzava: {{ user_data['country'] }}</p>
-<p>Broj telefona: {{ user_data['phoneNumber'] }}</p>
+<p>Broj telefona: {{ user_data['phoneNumber'] }}</p><br>
 {% if boolean == True %}
-Korisnik je verifikovan!
-    <table class="table table-striped" style="width: 40%;" width:50%> 
+<div style="margin-top: -280px; margin-left: 600px;" >
+    <h5>Korisnik je verifikovan!</h5><br>
+    <table class="table table-striped" style="width: 80%;" width:50%> 
         <tr>
             <td>Broj platne kartice </td>
             <td>{{ user_data['cardNumber'] }}</td>
         </tr>
         <tr>
             <td>Datum isteka kartice</td>
-            <td>{{ user_data['cardDate'] }}</td>
+            <td>{{ user_data['cardExpDate'] }}</td>
         </tr>
         <tr>
             <td>Stanje na racunu</td>
             <td>{{ user_data['amount'] }} $</td>
         </tr>
     </table>
+</div>
 {% else %}
-Korisnik nije verifikovan.
+<div style="margin-top: -530px; margin-left: 500px;">
+<h5>Korisnik nije verifikovan.</h5><br>
 <form method="POST" style="width: 30%;">
     <label>Broj kartice: &nbsp; &nbsp; &nbsp; </label>
     <input id="card_number" name="card_number" class="form-control" type="number" placeholder="4242 4242 4242 4242">
@@ -38,31 +41,17 @@ Korisnik nije verifikovan.
     <label>Iznos na racunu ($): </label>
     <input id="card_state" name="card_state" class="form-control" type="number" placeholder="100 $"></form> </br>
     <input type="submit" value="Submit">
+</div>
 </form>
 
-<table style="margin-top: -530px; margin-left: 500px; width: 50%;" class="table table-striped" >
-    <th colspan="3" style="text-align:center;">Kripto valute korisnika</th>
-    <tr>
-        <td>Bla</td>
-        <td>bla</td>
-        <td>bla</td>
-    </tr>
-    <tr>
-        <td>Bla</td>
-        <td>bla</td>
-        <td>bla</td>
-    </tr>
-    <tr>
-        <td>Bla</td>
-        <td>bla</td>
-        <td>bla</td>
-    </tr>
-    <tr>
-        <td>Bla</td>
-        <td>bla</td>
-        <td>bla</td>
-    </tr>
-</table>
 {% endif %}
+
+<form method="GET" action="/editUser" class="form" style="margin-top:100px; margin-left:150px; width: 150px;">
+    <input type="submit" value="Edit profile" >
+</form>
+
+<form method="GET" action="/editCard" class="form" style="margin-top:-50px; margin-left:400px; width: 150px;">
+    <input type="submit" value="Edit card" >
+</form>
 
 {% endblock %}
