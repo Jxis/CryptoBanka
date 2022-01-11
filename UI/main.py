@@ -166,13 +166,35 @@ def verify():
         return redirect(url_for("login"))
 
 
-@app.route('/trade')
+@app.route('/trade', methods=['GET', 'POST'])
 def trade():
-    response = session.get(url, params=parameters)
-    setattr(session, "user", None)  #*****
-    return render_template("trade.html",
-                           response=json.loads(response.text)['data'])
+    if request.method == "GET":
+        response = session.get(url, params=parameters)
+        setattr(session, "user", None)  #*****
+        return render_template("trade.html", response=json.loads(response.text)['data'])
 
+@app.route('/kupi')
+def kupi():
+    #napravi da se skida nova i sve to cu sutra
+    _nazivKripta = request.url['nazivKripta']
+    _kolikoKripta = request.url['kolikoKriptoa']
+    _mejl = getattr(session, "user")
+
+    header = {
+        'Content-type': 'application/json',
+        'Accept': 'text/plain'
+    }   
+    body = json.dumps({
+        'nazivKripta' : _nazivKripta,
+        'kolikoKripta' : _kolikoKripta,
+        'mejl' : _mejl
+    })
+
+    req = requests.post("http://127.0.0.1:5001/kupi", data=body, headers=header)
+    response = (req.json())
+    _message = response['message']
+    _code = req.status_code
+    print(_code)
 
 if __name__ == "__main__":
     app.run(port=5000)

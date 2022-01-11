@@ -88,5 +88,14 @@ def verify():
         retVal = {'message' : 'Cant add card info'}, 400    
         return retVal
 
+@app.route('/kupi', methods=['POST'])
+def kupi():
+    content = flask.request.json
+    _nazivKriptoa = content['nazivKriptoa']
+    _kolikoKriptoa = content['kolikoKriptoa']
+    _mejl = content['mejl']
+
+    if userExists(_mejl)
+
 if __name__ == "__main__":
     app.run(port=5001)

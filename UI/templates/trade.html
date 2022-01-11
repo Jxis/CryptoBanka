@@ -1,21 +1,51 @@
-{% extends "base.html" %} {% block title %}Trade{% endblock %}
+{% extends "base.html" %} {% block title %} Trade {% endblock %} {% block
+content%} {% for mainkey in response %} {% if mainkey ==
+request.args.get('token') %} {% set cenaKriptoa =
+response[mainkey]['quote']['USD']['price'] %} {% set nazivKriptoa =
+response[mainkey]['name'] %}
 
-{% block content %}
-
-
-
-{% for mainkey in response %}
-
-
-{% if mainkey == request.args.get('token') %}
 <h1>Kriptovaluta: {{response[mainkey]['name']}}</h1>
+<h1>Cena kripto valute: {{cenaKriptoa}}</h1>
+
+<h1>ULOZENO NOVCA:</h1>
+<input type="number" id="kolikoNovca" name="kolikoNovca" />
+<button
+  onclick="myFun(kolikoNovca.value, `{{cenaKriptoa}}`, `{{nazivKriptoa}}`)"
+>
+  DALJE
+</button>
+{% endif %} {% endfor %} {% if request.args.get('kolicinaNovca') %} {% set
+kolicinaNovca = request.args.get('kolicinaNovca') | float %} {% set cenaKriptoa
+= request.args.get('cenaKriptoa') | float %} {% set nazivKriptoa =
+request.args.get('nazivKriptoa') %}
+<h1>Kriptovaluta {{nazivKriptoa}}</h1>
+<h1>NOVAC {{kolicinaNovca}}</h1>
+<h1>KOLICINA KRIPTOA {{ kolicinaNovca/cenaKriptoa}}</h1>
+
+<button
+  onclick="myFun2(`{{kolicinaNovca}}`, `{{cenaKriptoa}}`, `{{nazivKriptoa}}`)"
+>
+  KUPI
+</button>
 
 {% endif %}
 
+<script>
+  function myFun(kolikoNovca, cenaKriptoa, nazivKriptoa) {
+    console.log(kolikoNovca);
+    console.log(cenaKriptoa);
+    console.log(nazivKriptoa);
 
+    window.location.href = `http://127.0.0.1:5000/trade?kolicinaNovca=${kolikoNovca}&cenaKriptoa=${cenaKriptoa}&nazivKriptoa=${nazivKriptoa}`;
+  }
+</script>
 
-
- 
-{% endfor %}
+<script>
+  function myFun2(kolikoNovca, cenaKriptoa, nazivKriptoa) {
+    window.location.href = `http://127.0.0.1:5000/kupi?&nazivKripta=${nazivKriptoa}&kolikoKripta=${
+      kolikoNovca / cenaKriptoa
+    }`;
+  }
+</script>
 
 {% endblock %}
