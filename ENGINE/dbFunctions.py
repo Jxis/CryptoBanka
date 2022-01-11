@@ -53,7 +53,7 @@ def getUser(email):
         for temp in users:
             if temp.email == email:
                 return temp
-    return NULL
+    return None
 
 def SignUpUser(name, lastName, address, city, country, phoneNumber, email, password, cardNumber, cardExpData, cardCode,amount):
     u = user.User(name, lastName, address, city, country, phoneNumber, email, password, cardNumber, cardExpData, cardCode, amount)
@@ -104,4 +104,11 @@ def AddCardInfo(email, cardNum, name, expDate, cardCode, amount):
 def AddUserToWalletTable(email, tether, bitcoin, litecoin, xrp, dogecoin, stellar, ethereum, tron, chainlink, cardano, cosmos, polygon, solana, avalanche, polkadot):
     u = user.Wallet(email, tether, bitcoin, litecoin, xrp, dogecoin, stellar, ethereum, tron, chainlink, cardano, cosmos, polygon, solana, avalanche, polkadot)
     db.session.add(u)
+    db.session.commit()
+
+def AddMoneyToCard(email, addedMoney):
+    u = getUser(email)
+    if u == None:
+        return
+    u.amount += int(addedMoney)
     db.session.commit()

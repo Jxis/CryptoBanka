@@ -2,7 +2,7 @@
 
 {% block content %}
 
-</br>
+<br><br>
 <h1 align="center">Informacije o korisniku:</h1><br>
 <h4>{{ user_data['name']}} {{ user_data['lastName'] }}</h4><br>
 <p>Email: {{user_data['email']}}</p>
@@ -10,9 +10,14 @@
 <p>Grad: {{ user_data['city'] }}</p>
 <p>Drzava: {{ user_data['country'] }}</p>
 <p>Broj telefona: {{ user_data['phoneNumber'] }}</p><br>
+
+<form method="GET" action="/editUser" class="form" style="margin-left:50px; width: 150px;">
+    <input type="submit" value="Edit profile" >
+</form>
+
 {% if boolean == True %}
-<div style="margin-top: -280px; margin-left: 600px;" >
-    <h5>Korisnik je verifikovan!</h5><br>
+<div style="margin-top: -310px; margin-left: 600px;" >
+    <h5>Korisnik je verifikovan.</h5><br>
     <table class="table table-striped" style="width: 80%;" width:50%> 
         <tr>
             <td>Broj platne kartice </td>
@@ -27,35 +32,31 @@
             <td>{{ user_data['amount'] }} $</td>
         </tr>
     </table>
+
+    <form align=center; method="POST" action="/addMoney" class="form" >
+        <input type="number" placeholder="Amount: 0$"  id='addedMoney' name='addedMoney' > <br><br>
+        <input type="submit" value="Add money" >
+    </form>
+
 </div>
 {% else %}
-<div style="margin-top: -530px; margin-left: 500px;">
-<h5>Korisnik nije verifikovan.</h5><br>
-<form method="POST" style="width: 30%;">
-    <label>Broj kartice: &nbsp; &nbsp; &nbsp; </label>
-    <input id="card_number" name="card_number" class="form-control" type="number" placeholder="4242 4242 4242 4242">
-    <label>Datum isteka: &nbsp; &nbsp; &nbsp; </label>
-    <input id="card_date" name="card_date" class="form-control" type="text" placeholder="mm/yy" pattern="\d{1,2}/\d{1,2}">
-    <label>Sigurnosni kod: </label>
-    <input id="card_password" name="card_password" class="form-control" type="text" placeholder="Password">
-    <label>Iznos na racunu ($): </label>
-    <input id="card_state" name="card_state" class="form-control" type="number" placeholder="100 $"></form> </br>
-    <input type="submit" value="Submit">
+<div style="margin-top: -310px; margin-left: 600px;">
+    <h5>Verifikuj korisnika:</h5><br>
+    <form method="POST" action="/verify" class="form" style="width: 60%;">
+        <label>Ime i prezime:</label>
+        <input id="name" name="name" class="form-control" type="text" placeholder="Ime i prezime" >
+        <label>Broj kartice:</label>
+        <input id="cardNum" name="cardNum" class="form-control" type="text" placeholder="4242 4242 4242 4242">
+        <label>Datum isteka: </label>
+        <input id="expDate" name="expDate" class="form-control" type="date" placeholder="mm/yy" pattern="\d{1,2}/\d{1,2}">
+        <label>Sigurnosni kod: </label>
+        <input id="cardCode" name="cardCode" class="form-control" type="text" placeholder="Password">
+        <label>Iznos na racunu ($): </label>
+        <input id="amount" name="amount" class="form-control" type="number" placeholder="100 $"> </br>
+        <input type="submit" value="Verify">
+    </form>
 </div>
-</form>
 
 {% endif %}
-
-<form method="GET" action="/editUser" class="form" style="margin-top:100px; margin-left:150px; width: 150px;">
-    <input type="submit" value="Edit profile" >
-</form>
-
-<form method="GET" action="/editCard" class="form" style="margin-top:-70px; margin-left:650px; width: 150px;">
-    <input type="submit" value="Edit card" >
-</form>
-
-<form method="GET" action="/addMoney" class="form" style="margin-top:-80px; margin-left:860px; width: 150px;">
-    <input type="submit" value="Add money" >
-</form>
 
 {% endblock %}

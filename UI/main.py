@@ -168,7 +168,7 @@ def user():
     _code = req.status_code
     if (_code == 200):
         setattr(session, "user_data", user_data)
-        if cardNumber != None:
+        if cardNumber != '0':
             verified = True
         else:
             verified = False
@@ -176,8 +176,6 @@ def user():
         #return redirect(url_for("user"), user_data = user_data)
         return render_template("user.html", user_data = user_data, boolean = verified)
     return render_template('login.html') #, message=_message)
-
-    return "<p>U procesu izrade.</p>"
 
 @app.route('/verify', methods=['GET', 'POST'])
 def verify():
@@ -283,6 +281,32 @@ def editUser():
 @app.route('/wallet')
 def wallet():
     return render_template("wallet.html")
+
+@app.route('/addMoney', methods=['POST'])
+def addMoney():
+    addedMoney = request.form['addedMoney']
+    email = getattr(session, 'user')
+    if addedMoney != '' and addedMoney != "" and addedMoney != 0:
+        header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+        body = json.dumps({
+            'email': email,
+            'addedMoney': addedMoney
+        })
+        req = requests.post("http://127.0.0.1:5001/addMoney",
+                            data=body,
+                            headers=header)
+        response = json.loads(jsonify(req.text).json)
+
+        #response = (req.json())
+        _message = response['message']
+        _code = req.status_code
+        if (_code == 200):
+            return redirect(url_for("user"))
+        return redirect(url_for("user"), message = _message)
+    else:
+        _message = "Wrong input"
+
+    return redirect(url_for(user))
 
 if __name__ == "__main__":
     app.run(port=5000)
