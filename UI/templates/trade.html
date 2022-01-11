@@ -1,30 +1,35 @@
-{% extends "base.html" %} {% block title %} Trade {% endblock %} {% block
-content%} {% for mainkey in response %} {% if mainkey ==
-request.args.get('token') %} {% set cenaKripta =
-response[mainkey]['quote']['USD']['price'] %} {% set nazivKripta =
-response[mainkey]['name'] %}
+{% extends "base.html" %} {% block title %} Trade {% endblock %} 
+{% block content%} 
+{% for mainkey in response %} 
+{% if mainkey == request.args.get('token') %} 
+{% set cenaKripta = response[mainkey]['quote']['USD']['price'] %} 
+{% set nazivKripta = response[mainkey]['name'] %}
 
-<h1>Kriptovaluta: {{response[mainkey]['name']}}</h1>
-<h1>Cena kripto valute: {{cenaKripta}}</h1>
+<br><br>
+<div style="text-align: center;">
+  <br>
+  <h3>Kriptovaluta: {{response[mainkey]['name']}}</h3><br>
+  <h4>Cena kripto valute: {{cenaKripta}}</h4><br>
 
-<h1>ULOZENO NOVCA:</h1>
-<input type="number" id="kolikoNovca" name="kolikoNovca" />
-<button onclick="myFun(kolikoNovca.value, `{{cenaKripta}}`, `{{nazivKripta}}`)">
-  DALJE
-</button>
-{% endif %} {% endfor %} {% if request.args.get('kolicinaNovca') %} {% set
-kolicinaNovca = request.args.get('kolicinaNovca') | float %} {% set cenaKripta =
-request.args.get('cenaKripta') | float %} {% set nazivKripta =
-request.args.get('nazivKripta') %}
-<h1>Kriptovaluta {{nazivKripta}}</h1>
-<h1>NOVAC {{kolicinaNovca}}</h1>
-<h1>KOLICINA Kripta {{ kolicinaNovca/cenaKripta}}</h1>
+  <h5>ULOZENO NOVCA: 
+    <input type="number" id="kolikoNovca" name="kolikoNovca" /><br><br>
+    <button onclick="myFun(kolikoNovca.value, `{{cenaKripta}}`, `{{nazivKripta}}`)">DALJE</button>
+  </h5>
+</div>
+{% endif %} 
+{% endfor %}
 
-<button
-  onclick="myFun2(`{{kolicinaNovca}}`, `{{cenaKripta}}`, `{{nazivKripta}}`)"
->
-  KUPI
-</button>
+{% if request.args.get('kolicinaNovca') %} 
+{% set kolicinaNovca = request.args.get('kolicinaNovca') | float %}
+{% set cenaKripta = request.args.get('cenaKripta') | float %}
+{% set nazivKripta = request.args.get('nazivKripta') %}
+
+<br><br>
+<div style="text-align: center;">
+  <br><br><br>
+  <h2>{{ kolicinaNovca }} $ = {{ kolicinaNovca / cenaKripta }} {{nazivKripta}}</h2><br><br>
+  <button style="width: 200px; height: 50px;" onclick="myFun2(`{{kolicinaNovca}}`, `{{cenaKripta}}`, `{{nazivKripta}}`)" >KUPI</button>
+</div>
 
 {% endif %}
 
@@ -40,9 +45,7 @@ request.args.get('nazivKripta') %}
 
 <script>
   function myFun2(kolikoNovca, cenaKripta, nazivKripta) {
-    window.location.href = `http://127.0.0.1:5000/buyKripto?nazivKripta=${nazivKripta}&kolikoKripta=${
-      kolikoNovca / cenaKripta
-    }&kolicinaNovca=${kolikoNovca}`;
+    window.location.href = `http://127.0.0.1:5000/buyKripto?nazivKripta=${nazivKripta}&kolikoKripta=${kolikoNovca / cenaKripta}&kolicinaNovca=${kolikoNovca}`;
   }
 </script>
 
