@@ -83,4 +83,23 @@ class Wallet(db.Model):
         self.solana = _solana
         self.avalanche = _avalanche
         self.polkadot = _polkadot
+        
 
+class Transaction(db.Model):
+    __tablename__ = 'transaction' #ovo je da znamo na koju tabelu u bazi se refereciramo
+    userEmail = db.Column(db.String(32), primary_key=True)
+    initTime = db.Column(db.DateTime)    #vreme iniciranja transakcije
+    status = db.Column(db.String(32))    #da li je transakcija odobrena ili odbijena
+    targetEmail = db.Column(db.String(32))    #email na koji se prenosi novac
+    cryptoType = db.Column(db.String(32))   #tip kripto valute koji se prenosi
+    currentCryptoValue = db.Column(db.Float(38,10))     #trenutna cena te kripto valute
+    exchangedQuantity = db.Column(db.Float(38,10))  # kolicina koja je razmenjena
+
+    def __init__(self, _userEmail, _initTime, _status, _targetEmail, _cryptoType, _currentCryptoValue, _exchangedQuantity):
+        self.userEmail = _userEmail
+        self.initTime = _initTime
+        self.status = _status
+        self.targetEmail = _targetEmail
+        self.cryptoType = _cryptoType;
+        self.currentCryptoValue = _currentCryptoValue
+        self.exchangedQuantity = _exchangedQuantity
