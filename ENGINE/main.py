@@ -11,7 +11,7 @@ from flask_marshmallow import Marshmallow
 from pymysql import cursors
 from models import user
 
-from dbFunctions import app, userExists, SignUpUser, LoginData, AddCardInfo, AddUserToWalletTable, getUser, UpdateUser, AddMoneyToCard, ConvertUSDToTether, updateUserAmount
+from dbFunctions import app, userExists, SignUpUser, LoginData, AddCardInfo, AddUserToWalletTable, getUser, UpdateUser, AddMoneyToCard, ConvertUSDToTether, updateUserAmount, addKriptoToWallet, getUsersWallet
 
 @app.route('/sign_up', methods=['POST'])
 def signup():
@@ -180,6 +180,34 @@ def convertUSDToTether():
     else:
         retVal = {'message' : 'Not enough money on the account.'}, 400
     return retVal
+
+@app.route('/wallet', methods=['GET'])
+def wallet():
+    content = flask.request.args
+    email = content['email']
+    
+    if not userExists(email):
+        return {'message': 'User does not exist.'}
+    wallet = getUsersWallet(email)
+    wallet_data = {
+        'tether': wallet.tether,
+        'bitcoin': wallet.bitcoin,
+        'litecoin': wallet.litecoin,
+        'xrp': wallet.xrp,
+        'dogecoin': wallet.dogecoin,
+        'stellar': wallet.stellar,
+        'ethereum': wallet.ethereum,
+        'tron': wallet.tron,
+        'chainlink': wallet.chainlink,
+        'cardano': wallet.cardano,
+        'cosmos': wallet.cosmos,
+        'polygon': wallet.polygon,
+        'solana': wallet.solana,
+        'avalanche': wallet.avalanche,
+        'polkadot': wallet.polkadot
+    }
+     
+    return wallet_data
 
 if __name__ == "__main__":
     app.run(port=5001)
