@@ -153,6 +153,7 @@ def addKriptoToWallet(email, kriptoName, kriptoAmount):
         case 'Polkadot':
             wallet.polkadot += float(kriptoAmount) 
     db.session.commit();
+
 def AddMoneyToCard(email, addedMoney):
     u = getUser(email)
     if u == None:
@@ -180,3 +181,21 @@ def ConvertUSDToTether(email, usdAmount):
         db.session.commit()
         return True
     return False
+
+
+#Upis nove transakcije u bazu  (istestirati kad se napravi za transakciju)
+def AddTransactionToDB(_userEmail, _initTime, _status, _targetEmail, _cryptoType, _currentCryptoValue, _exchangedQuantity):
+    tr = user.Transaction(_userEmail, _initTime, _status, _targetEmail, _cryptoType, _currentCryptoValue, _exchangedQuantity)
+    db.session.add(tr)
+    db.session.commit()
+
+
+def AllTransactionsForTargerUser(email: str):
+    listOfAllTransactions = user.Transaction.query.all()
+    listOfTargetTransactions = []
+
+    for transaction in listOfAllTransactions:
+        if(transaction.userEmail == email):
+            listOfTargetTransactions.append(transaction)
+
+    return listOfTargetTransactions

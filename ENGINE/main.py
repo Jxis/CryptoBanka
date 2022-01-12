@@ -11,7 +11,7 @@ from flask_marshmallow import Marshmallow
 from pymysql import cursors
 from models import user
 
-from dbFunctions import app, userExists, SignUpUser, LoginData, AddCardInfo, AddUserToWalletTable, getUser, UpdateUser, AddMoneyToCard, ConvertUSDToTether, updateUserAmount
+from dbFunctions import app, userExists, SignUpUser, LoginData, AddCardInfo, AddUserToWalletTable, getUser, UpdateUser, AddMoneyToCard, ConvertUSDToTether, updateUserAmount, addKriptoToWallet
 
 @app.route('/sign_up', methods=['POST'])
 def signup():
