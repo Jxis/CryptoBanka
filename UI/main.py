@@ -251,11 +251,9 @@ def kupi():
     response = (req.json())
     _message = response['message']
     _code = req.status_code
-    print(_code)
+    
     response = session.get(url, params=parameters)
-    setattr(session, "user", None)  #*****
-    return render_template("trade.html",
-                           response=json.loads(response.text)['data'])
+    return render_template("home.html", response=json.loads(response.text)['data'])
 
 @app.route('/editUser', methods=['GET', 'POST'])
 def editUser():

@@ -3,6 +3,7 @@ import flask
 from flaskext.mysql import MySQL
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from marshmallow.fields import Decimal
 from pymysql import NULL, cursors
 from models import user
 
@@ -57,7 +58,7 @@ def getUser(email):
 
 def updateUserAmount(email, amount):
     user = getUser(email)
-    user.amaunt = amount
+    user.amount = amount
     db.session.commit()
 
 def SignUpUser(name, lastName, address, city, country, phoneNumber, email, password, cardNumber, cardExpData, cardCode,amount):
@@ -114,43 +115,43 @@ def AddUserToWalletTable(email, tether, bitcoin, litecoin, xrp, dogecoin, stella
 def getUsersWallet(email):
     wallets = user.Wallet.query.all()
     for temp in wallets:
-        if temp.email == email:
+        if temp.userEmail == email:
             return temp
     return NULL
 
 def addKriptoToWallet(email, kriptoName, kriptoAmount):
     wallet = getUsersWallet(email)
     match kriptoName:
-        case 'tether':
-            wallet.tether += kriptoAmount 
-        case 'bitcoin':
-            wallet.tether += kriptoAmount 
-        case 'litecoin':
-            wallet.tether += kriptoAmount 
-        case 'xrp':
-            wallet.tether += kriptoAmount 
-        case 'dogecoin':
-            wallet.tether += kriptoAmount 
-        case 'stellar':
-            wallet.tether += kriptoAmount 
-        case 'ethereum':
-            wallet.tether += kriptoAmount 
-        case 'tron':
-            wallet.tether += kriptoAmount 
-        case 'chainlink':
-            wallet.tether += kriptoAmount
-        case 'cardano':
-            wallet.tether += kriptoAmount 
-        case 'cosmos':
-            wallet.tether += kriptoAmount 
-        case 'polygon':
-            wallet.tether += kriptoAmount 
-        case 'solana':
-            wallet.tether += kriptoAmount 
-        case 'avalanche':
-            wallet.tether += kriptoAmount 
-        case 'polkadot':
-            wallet.tether += kriptoAmount 
+        case 'Tether':
+            wallet.tether += float(kriptoAmount) 
+        case 'Bitcoin':
+            wallet.bitcoin = float(wallet.bitcoin) + float(kriptoAmount) 
+        case 'Litecoin':
+            wallet.litecoin += float(kriptoAmount) 
+        case 'XRP':
+            wallet.xrp += float(kriptoAmount) 
+        case 'Dogecoin':
+            wallet.dogecoin += float(kriptoAmount) 
+        case 'Stellar':
+            wallet.stellar += float(kriptoAmount) 
+        case 'Ethereum':
+            wallet.ethereum += float(kriptoAmount)
+        case 'TRON':
+            wallet.tron += float(kriptoAmount)
+        case 'Chainlink':
+            wallet.chainlink += float(kriptoAmount)
+        case 'Cardano':
+            wallet.cardano += float(kriptoAmount)
+        case 'Cosmos':
+            wallet.cosmos += float(kriptoAmount)
+        case 'Polygon':
+            wallet.polygon += float(kriptoAmount)
+        case 'Solana':
+            wallet.solana += float(kriptoAmount)
+        case 'Avalanche':
+            wallet.avalanche += float(kriptoAmount)
+        case 'Polkadot':
+            wallet.polkadot += float(kriptoAmount) 
     db.session.commit();
 def AddMoneyToCard(email, addedMoney):
     u = getUser(email)

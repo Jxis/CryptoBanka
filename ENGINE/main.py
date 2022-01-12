@@ -99,10 +99,12 @@ def kupi():
 
     if userExists(_mejl):
         user = getUser(_mejl)
-        if user.amount >= _kolikoNovca:
-            user.amount = user.amount-_kolikoNovca
+        if user.amount >= float(_kolikoNovca):
+            user.amount = user.amount-float(_kolikoNovca)
             updateUserAmount(_mejl, user.amount)
             addKriptoToWallet(_mejl, _nazivKripta, _kolikoKripta)
+            retVal = {'message' : 'Successfully added data'}, 200    
+            return retVal
             
 @app.route('/user', methods=['GET'])
 def user():
