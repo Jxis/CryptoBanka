@@ -125,7 +125,8 @@ def sign_up():
 @app.route('/logout')
 def logout():
     setattr(session, "user", None)
-    return render_template("home.html", message="User loggged out.")
+    #return render_template("home.html", message="User loggged out.")
+    return redirect(url_for("home"))
 
 @app.route('/user', methods=['GET'])
 def user():
@@ -359,4 +360,5 @@ def convertUSDToTether():
     return redirect(url_for("user"), message = _message)
 
 if __name__ == "__main__":
+    setattr(session, "user", None)
     app.run(port=5000)
