@@ -32,10 +32,16 @@
             <td>{{ user_data['amount'] }} $</td>
         </tr>
     </table>
+    <br>
 
     <form align=center; method="POST" action="/addMoney" class="form" >
-        <input type="number" placeholder="Amount: 0$"  id='addedMoney' name='addedMoney' > <br><br>
+        <input type="number" placeholder="Add amount: 0$"  id='addedMoney' name='addedMoney' > <br><br>
         <input type="submit" value="Add money" >
+    </form>
+    <br><br>
+    <form align=center; method="POST" action="/convertUSDToTether" class="form" >
+        <input type="number" placeholder="Amount to convert: 0$"  id='usdToTetherAmount' name='usdToTetherAmount' > <br><br>
+        <input type="submit" value="Convert to tether" >
     </form>
 
 </div>

@@ -112,3 +112,24 @@ def AddMoneyToCard(email, addedMoney):
         return
     u.amount += int(addedMoney)
     db.session.commit()
+
+def GetUserWallet(email):
+    if(userExists(email)):
+        wallets = user.Wallet.query.all()
+        for temp in wallets:
+            if temp.userEmail == email:
+                return temp
+    return None
+
+def ConvertUSDToTether(email, usdAmount):
+    if not userExists(email):
+        return False
+    u = getUser(email)
+    w = GetUserWallet(email)
+    intUSD = int(usdAmount)
+    if u.amount >= intUSD:
+        u.amount -= intUSD
+        w.tether += intUSD
+        db.session.commit()
+        return True
+    return False

@@ -6,6 +6,7 @@ import requests
 from werkzeug.utils import redirect
 from werkzeug.wrappers import response
 
+
 app = Flask(__name__)
 app.secret_key = 'key'
 
@@ -297,7 +298,6 @@ def addMoney():
                             headers=header)
         response = json.loads(jsonify(req.text).json)
 
-        #response = (req.json())
         _message = response['message']
         _code = req.status_code
         if (_code == 200):
@@ -307,6 +307,29 @@ def addMoney():
         _message = "Wrong input"
 
     return redirect(url_for(user))
+
+@app.route('/convertUSDToTether', methods=['POST'])
+def convertUSDToTether():
+    email = getattr(session, 'user')
+    usdAmount = request.form['usdToTetherAmount']
+
+    header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    body = json.dumps({
+        'email': email,
+        'usdAmount': usdAmount
+    })
+    req = requests.post("http://127.0.0.1:5001/convertUSDToTether",
+                        data=body,
+                        headers=header)
+    
+    response = (req.json())
+    #response = json.loads(jsonify(req.text).json)
+
+    _message = response['message']
+    _code = req.status_code
+    if (_code == 200):
+        return redirect(url_for("user"))
+    return redirect(url_for("user"), message = _message)
 
 if __name__ == "__main__":
     app.run(port=5000)

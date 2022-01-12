@@ -10,7 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from pymysql import cursors
 from models import user
-from dbFunctions import app, userExists, SignUpUser, LoginData, AddCardInfo, AddUserToWalletTable, getUser, UpdateUser, AddMoneyToCard
+from dbFunctions import app, userExists, SignUpUser, LoginData, AddCardInfo, AddUserToWalletTable, getUser, UpdateUser, AddMoneyToCard, ConvertUSDToTether, GetUserWallet
 
 @app.route('/sign_up', methods=['POST'])
 def signup():
@@ -148,6 +148,19 @@ def addMoney():
     
     AddMoneyToCard(_email, _addedMoney)
     retVal = {'message' : 'Money successfully added.'}, 200
+    return retVal
+
+@app.route('/convertUSDToTether', methods=['POST'])
+def convertUSDToTether():
+    content = flask.request.json
+    email = content['email']
+    usdAmount = content['usdAmount']
+    boolean = ConvertUSDToTether(email, usdAmount)
+
+    if boolean == True:
+        retVal = {'message' : 'Money successfully added.'}, 200
+    else:
+        retVal = {'message' : 'Not enough money on the account.'}, 400
     return retVal
 
 if __name__ == "__main__":
