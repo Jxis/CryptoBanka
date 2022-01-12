@@ -10,7 +10,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from pymysql import cursors
 from models import user
-from dbFunctions import app, userExists, SignUpUser, LoginData, AddCardInfo, AddUserToWalletTable, getUser, UpdateUser, AddMoneyToCard, ConvertUSDToTether, GetUserWallet
+
+from dbFunctions import app, userExists, SignUpUser, LoginData, AddCardInfo, AddUserToWalletTable, getUser, UpdateUser, AddMoneyToCard, ConvertUSDToTether, updateUserAmount
 
 @app.route('/sign_up', methods=['POST'])
 def signup():
@@ -89,6 +90,23 @@ def verify():
         retVal = {'message' : 'Cant add card info'}, 400    
         return retVal
 
+@app.route('/buyKripto', methods=['GET', 'POST'])
+def kupi():
+    content = flask.request.json
+    _nazivKripta = content['nazivKripta']
+    _kolikoKripta = content['kolikoKripta']
+    _kolikoNovca = content['kolikoNovca']
+    _mejl = content['mejl']
+
+    if userExists(_mejl):
+        user = getUser(_mejl)
+        if user.amount >= float(_kolikoNovca):
+            user.amount = user.amount-float(_kolikoNovca)
+            updateUserAmount(_mejl, user.amount)
+            addKriptoToWallet(_mejl, _nazivKripta, _kolikoKripta)
+            retVal = {'message' : 'Successfully added data'}, 200    
+            return retVal
+            
 @app.route('/user', methods=['GET'])
 def user():
     content = flask.request.args

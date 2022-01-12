@@ -3,6 +3,7 @@ import flask
 from flaskext.mysql import MySQL
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from marshmallow.fields import Decimal
 from pymysql import NULL, cursors
 from models import user
 
@@ -55,6 +56,11 @@ def getUser(email):
                 return temp
     return None
 
+def updateUserAmount(email, amount):
+    user = getUser(email)
+    user.amount = amount
+    db.session.commit()
+
 def SignUpUser(name, lastName, address, city, country, phoneNumber, email, password, cardNumber, cardExpData, cardCode,amount):
     u = user.User(name, lastName, address, city, country, phoneNumber, email, password, cardNumber, cardExpData, cardCode, amount)
     db.session.add(u)
@@ -106,6 +112,47 @@ def AddUserToWalletTable(email, tether, bitcoin, litecoin, xrp, dogecoin, stella
     db.session.add(u)
     db.session.commit()
 
+def getUsersWallet(email):
+    wallets = user.Wallet.query.all()
+    for temp in wallets:
+        if temp.userEmail == email:
+            return temp
+    return NULL
+
+def addKriptoToWallet(email, kriptoName, kriptoAmount):
+    wallet = getUsersWallet(email)
+    match kriptoName:
+        case 'Tether':
+            wallet.tether += float(kriptoAmount) 
+        case 'Bitcoin':
+            wallet.bitcoin = float(wallet.bitcoin) + float(kriptoAmount) 
+        case 'Litecoin':
+            wallet.litecoin += float(kriptoAmount) 
+        case 'XRP':
+            wallet.xrp += float(kriptoAmount) 
+        case 'Dogecoin':
+            wallet.dogecoin += float(kriptoAmount) 
+        case 'Stellar':
+            wallet.stellar += float(kriptoAmount) 
+        case 'Ethereum':
+            wallet.ethereum += float(kriptoAmount)
+        case 'TRON':
+            wallet.tron += float(kriptoAmount)
+        case 'Chainlink':
+            wallet.chainlink += float(kriptoAmount)
+        case 'Cardano':
+            wallet.cardano += float(kriptoAmount)
+        case 'Cosmos':
+            wallet.cosmos += float(kriptoAmount)
+        case 'Polygon':
+            wallet.polygon += float(kriptoAmount)
+        case 'Solana':
+            wallet.solana += float(kriptoAmount)
+        case 'Avalanche':
+            wallet.avalanche += float(kriptoAmount)
+        case 'Polkadot':
+            wallet.polkadot += float(kriptoAmount) 
+    db.session.commit();
 def AddMoneyToCard(email, addedMoney):
     u = getUser(email)
     if u == None:
