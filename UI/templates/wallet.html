@@ -1,36 +1,28 @@
-{% extends "base.html" %} {% block title %}Wallet{% endblock %} {% block content %}
+{% extends "base.html" %} {% block title %} Wallet {% endblock %} 
 
-<table style="width: 100%; border: 1px solid black" class="table table-striped">
+{% block content %}
+
+<br><br>
+<h3 align="center">Your crypto wallet</h3><br>
+<table align="center" style="width: 60%; border: 1px solid black" class="table table-striped">
   <thead>
     <tr>
-      <th style="border: 1px solid black">Symbol</th>
+      <th style="border: 1px solid black">Name</th>
       <th style="border: 1px solid black">Amount</th>
-      <th style="border: 1px solid black">Buy more</th>
-      <th style="border: 1px solid black">Sell</th>
-      <th></th>
     </tr>
   </thead>
 
   <tbody>
-    {% for mainkey in response %}
+    {% for crypto in response %}
 
     <tr>
-      <td style="border: 1px solid black">{{response[mainkey]['symbol']}}</td>
-      <td style="border: 1px solid black">Amount</td>
-      <td style="border: 1px solid black"></td>
-      <td style="border: 1px solid black">
-        <button onclick="tradeFunction(`{{mainkey}}`)" style="width: 100%; border: none; background: transparent" > Click </button>
-      </td>
+      {% set value = response[crypto]|float|round(10, 'floor') %}
+      <td style="border: 1px solid black">{{crypto}}</td>
+      <td style="border: 1px solid black">{{ value }}</td>
     </tr>
 
     {% endfor %}
 
-    <script>
-      function tradeFunction(value) {
-        console.log(value);
-        window.location.href = `http://127.0.0.1:5000/trade?token=${value}`;
-      }
-    </script>
   </tbody>
 </table>
 

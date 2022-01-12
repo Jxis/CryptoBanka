@@ -5,6 +5,8 @@ from requests import Request, Session
 import requests
 from werkzeug.utils import redirect
 from werkzeug.wrappers import response
+import jinja2
+from jinja2 import filters
 
 
 app = Flask(__name__)
@@ -309,7 +311,20 @@ def editUser():
 
 @app.route('/wallet')
 def wallet():
-    return render_template("wallet.html")
+    _email = getattr(session, "user")
+    if _email == None:
+        return "<p>User not logged in.</p>"
+
+    header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    req = requests.get("http://127.0.0.1:5001/wallet?email={}".format(_email),                           
+                        headers=header)
+    response = json.loads(jsonify(req.text).json)
+
+    _code = req.status_code
+    if (_code == 200):
+        setattr(session, "wallet_data", response)
+        return render_template("wallet.html", response = response)
+    return render_template('user.html') #, message=_message)
 
 @app.route('/addMoney', methods=['POST'])
 def addMoney():
