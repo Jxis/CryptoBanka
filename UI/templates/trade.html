@@ -1,6 +1,7 @@
 {% extends "base.html" %} {% block title %} Trade {% endblock %} 
 {% block content%} 
 {% for mainkey in response %} 
+{}
 {% if mainkey == request.args.get('token') %} 
 {% set cenaKripta = response[mainkey]['quote']['USD']['price'] %} 
 {% set nazivKripta = response[mainkey]['name'] %}
@@ -11,7 +12,12 @@
   <h3>Kriptovaluta: {{response[mainkey]['name']}}</h3><br>
   <h4>Cena kripto valute: {{cenaKripta}}</h4><br>
 
-  <h5>ULOZENO NOVCA: 
+  <h5>ULOZENO:
+    <select id="valutaPlacanja">
+    {%for mainkey in response%}
+    <option value="{{ response[mainkey]['name'] }}">{{response[mainkey]['name']}}</option>
+    {%endfor%}
+    </select>
     <input type="number" id="kolikoNovca" name="kolikoNovca" /><br><br>
     <button onclick="myFun(kolikoNovca.value, `{{cenaKripta}}`, `{{nazivKripta}}`)">DALJE</button>
   </h5>
@@ -35,17 +41,22 @@
 
 <script>
   function myFun(kolikoNovca, cenaKripta, nazivKripta) {
-    console.log(kolikoNovca);
-    console.log(cenaKripta);
-    console.log(nazivKripta);
+    
+    valutaPlacanja= document.getElementById("valutaPlacanja").value
+  
+    for (const key in [pomoc]) {
+      if (pomoc.key == valutaPlacanja){
 
-    window.location.href = `http://127.0.0.1:5000/trade?kolicinaNovca=${kolikoNovca}&cenaKripta=${cenaKripta}&nazivKripta=${nazivKripta}`;
+      }
+    }
+
+    window.location.href = `http://127.0.0.1:5000/trade?valutaPlacanja${valutaPlacanja}&kolicinaNovca=${kolikoNovca}&cenaKripta=${cenaKripta}&nazivKripta=${nazivKripta}`;
   }
 </script>
 
 <script>
   function myFun2(kolikoNovca, cenaKripta, nazivKripta) {
-    window.location.href = `http://127.0.0.1:5000/buyKripto?nazivKripta=${nazivKripta}&kolikoKripta=${kolikoNovca / cenaKripta}&kolicinaNovca=${kolikoNovca}`;
+    window.location.href = `http://127.0.0.1:5000/buyKripto?nazivKripta=${nazivKripta}&kolikoKripta=${kolikoNovca/cenaKripta}&kolicinaNovca=${kolikoNovca0}&valutaPlacanja${valutaPlacanja}`;
   }
 </script>
 

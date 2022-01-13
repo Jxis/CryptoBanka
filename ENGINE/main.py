@@ -1,3 +1,4 @@
+import re
 from flask import Flask
 from requests.api import get
 
@@ -11,7 +12,7 @@ from flask_marshmallow import Marshmallow
 from pymysql import cursors
 from models import user
 
-from dbFunctions import app, userExists, SignUpUser, LoginData, AddCardInfo, AddUserToWalletTable, getUser, UpdateUser, AddMoneyToCard, ConvertUSDToTether, updateUserAmount
+from dbFunctions import app, userExists, SignUpUser, LoginData, AddCardInfo, AddUserToWalletTable, getUser, UpdateUser, AddMoneyToCard, ConvertUSDToTether, updateUserAmount, UserHaveWallet, addKriptoToWallet, GetUserWallet
 
 @app.route('/sign_up', methods=['POST'])
 def signup():
@@ -98,15 +99,20 @@ def kupi():
     _kolikoNovca = content['kolikoNovca']
     _mejl = content['mejl']
 
-    if userExists(_mejl):
-        user = getUser(_mejl)
-        if user.amount >= float(_kolikoNovca):
-            user.amount = user.amount-float(_kolikoNovca)
-            updateUserAmount(_mejl, user.amount)
+    if UserHaveWallet(_mejl):
+        userWallet = GetUserWallet(_mejl)
+        if userWallet.tether >= float(_kolikoNovca):
+            userWallet.tether = float(userWallet.tether)-float(_kolikoNovca)
+            updateUserAmount(_mejl, userWallet.tether)
             addKriptoToWallet(_mejl, _nazivKripta, _kolikoKripta)
-            retVal = {'message' : 'Successfully added data'}, 200    
-            return retVal
-            
+            retVal = {'message' : 'Successfully added kripto to wallet.'}, 200    
+        else:
+            retVal = {'message' : 'User does not have enought tether in wallet.'}, 400   
+    else:
+            retVal = {'message' : 'User does not have wallet.'}, 400    
+    
+    return retVal
+
 @app.route('/user', methods=['GET'])
 def user():
     content = flask.request.args

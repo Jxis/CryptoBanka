@@ -253,8 +253,11 @@ def kupi():
     _message = response['message']
     _code = req.status_code
     
-    response = session.get(url, params=parameters)
-    return render_template("home.html", response=json.loads(response.text)['data'])
+    if _code == 200:
+        return redirect(url_for("home"))
+    else:
+        return render_template("verify.html", message = _message)
+
 
 @app.route('/editUser', methods=['GET', 'POST'])
 def editUser():
