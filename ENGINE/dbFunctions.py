@@ -166,6 +166,41 @@ def addKriptoToWallet(email, kriptoName, kriptoAmount):
             wallet.polkadot += float(kriptoAmount) 
     db.session.commit()
 
+def PayFromWallet(email, kriptoName, kriptoAmount):
+    wallet = GetUserWallet(email)
+    match kriptoName:
+        case 'Tether':
+            wallet.tether = float(wallet.tether) - float(kriptoAmount) 
+        case 'Bitcoin':
+            wallet.bitcoin = float(wallet.bitcoin) - float(kriptoAmount) 
+        case 'Litecoin':
+            wallet.litecoin = float(wallet.litecoin) - float(kriptoAmount) 
+        case 'XRP':
+            wallet.xrp = float(wallet.xrp) - float(kriptoAmount) 
+        case 'Dogecoin':
+            wallet.dogecoin = float(wallet.dogecoin) - float(kriptoAmount) 
+        case 'Stellar':
+            wallet.stellar = float(wallet.stellar) - float(kriptoAmount) 
+        case 'Ethereum':
+            wallet.ethereum = float(wallet.ethereum) -  float(kriptoAmount)
+        case 'TRON':
+            wallet.tron = float(wallet.tron) - float(kriptoAmount)
+        case 'Chainlink':
+            wallet.chainlink = float(wallet.chainlink) - float(kriptoAmount)
+        case 'Cardano':
+            wallet.cardano = float(wallet.cardano) - float(kriptoAmount)
+        case 'Cosmos':
+            wallet.cosmos = float(wallet.cosmos) - float(kriptoAmount)
+        case 'Polygon':
+            wallet.polygon = float(wallet.polygon) - float(kriptoAmount)
+        case 'Solana':
+            wallet.solana = float(wallet.solana) - float(kriptoAmount)
+        case 'Avalanche':
+            wallet.avalanche = float(wallet.avalanche) - float(kriptoAmount)
+        case 'Polkadot':
+            wallet.polkadot += float(kriptoAmount) 
+    db.session.commit()
+
 def AddMoneyToCard(email, addedMoney):
     u = getUser(email)
     if u == None:

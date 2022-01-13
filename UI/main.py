@@ -237,7 +237,8 @@ def kupi():
     #napravi da se skida nova i sve to cu sutra
     _nazivKripta = request.args.get('nazivKripta')
     _kolikoKripta = request.args.get('kolikoKripta')
-    _kolikoNovca = request.args.get('kolicinaNovca')
+    _ulozeno = request.args.get('ulozeno')
+    _valutaPlacanja = request.args.get('valutaPlacanja')
     _mejl = getattr(session, "user")
 
     header = {
@@ -247,7 +248,8 @@ def kupi():
     body = json.dumps({
         'nazivKripta' : _nazivKripta,
         'kolikoKripta' : _kolikoKripta,
-        'kolikoNovca' : _kolikoNovca,
+        'ulozeno' : _ulozeno,
+        'valutaPlacanja' : _valutaPlacanja,
         'mejl' : _mejl
     })
 

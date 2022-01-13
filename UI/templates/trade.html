@@ -1,7 +1,6 @@
 {% extends "base.html" %} {% block title %} Trade {% endblock %} 
 {% block content%} 
 {% for mainkey in response %} 
-{}
 {% if mainkey == request.args.get('token') %} 
 {% set cenaKripta = response[mainkey]['quote']['USD']['price'] %} 
 {% set nazivKripta = response[mainkey]['name'] %}
@@ -15,8 +14,10 @@
   <h5>ULOZENO:
     <select id="valutaPlacanja">
     {%for mainkey in response%}
-    <option value="{{ response[mainkey]['name'] }}">{{response[mainkey]['name']}}</option>
+    {%set pomoc = response[mainkey]['name'] + "/" + response[mainkey]['quote']['USD']['price']|string%}
+    <option value="{{pomoc}}">{{response[mainkey]['name']}}</option>
     {%endfor%}
+    <option value="Tether/1">Tether</option>
     </select>
     <input type="number" id="kolikoNovca" name="kolikoNovca" /><br><br>
     <button onclick="myFun(kolikoNovca.value, `{{cenaKripta}}`, `{{nazivKripta}}`)">DALJE</button>
@@ -25,38 +26,39 @@
 {% endif %} 
 {% endfor %}
 
-{% if request.args.get('kolicinaNovca') %} 
-{% set kolicinaNovca = request.args.get('kolicinaNovca') | float %}
-{% set cenaKripta = request.args.get('cenaKripta') | float %}
+{% if request.args.get('ulozeno') %} 
+{% set ulozeno = request.args.get('ulozeno')| float %}
+{% set valutaPlacanja = request.args.get('valutaPlacanja') %}
 {% set nazivKripta = request.args.get('nazivKripta') %}
+{% set kolikoKripta = request.args.get('kolicinaKripta')|float%}
 
 <br><br>
 <div style="text-align: center;">
   <br><br><br>
-  <h2>{{ kolicinaNovca }} $ = {{ kolicinaNovca / cenaKripta }} {{nazivKripta}}</h2><br><br>
-  <button style="width: 200px; height: 50px;" onclick="myFun2(`{{kolicinaNovca}}`, `{{cenaKripta}}`, `{{nazivKripta}}`)" >KUPI</button>
+  <h2>{{ ulozeno }} {{ valutaPlacanja}} = {{ kolikoKripta }} {{nazivKripta}}</h2><br><br>
+  <button style="width: 200px; height: 50px;" onclick="myFun2(`{{ulozeno}}`, `{{valutaPlacanja}}`, `{{kolikoKripta}}`, `{{nazivKripta}}`)" >KUPI</button>
 </div>
 
 {% endif %}
 
 <script>
-  function myFun(kolikoNovca, cenaKripta, nazivKripta) {
+  function myFun(ulozeno, cenaKripta, nazivKripta) {
     
-    valutaPlacanja= document.getElementById("valutaPlacanja").value
-  
-    for (const key in [pomoc]) {
-      if (pomoc.key == valutaPlacanja){
+    pomoc= document.getElementById("valutaPlacanja").value
+    
+    valutaPlacanja = pomoc.split("/")[0]
+    cenaValutePlacanja = pomoc.split("/")[1]
 
-      }
-    }
+    dolara=ulozeno*cenaValutePlacanja
+    kolikoKripta = dolara/cenaKripta
 
-    window.location.href = `http://127.0.0.1:5000/trade?valutaPlacanja${valutaPlacanja}&kolicinaNovca=${kolikoNovca}&cenaKripta=${cenaKripta}&nazivKripta=${nazivKripta}`;
+    window.location.href = `http://127.0.0.1:5000/trade?ulozeno=${ulozeno}&valutaPlacanja=${valutaPlacanja}&kolicinaKripta=${kolikoKripta}&nazivKripta=${nazivKripta}`;
   }
 </script>
 
 <script>
-  function myFun2(kolikoNovca, cenaKripta, nazivKripta) {
-    window.location.href = `http://127.0.0.1:5000/buyKripto?nazivKripta=${nazivKripta}&kolikoKripta=${kolikoNovca/cenaKripta}&kolicinaNovca=${kolikoNovca0}&valutaPlacanja${valutaPlacanja}`;
+  function myFun2(ulozeno, valutaPlacanja, kolikoKripta, nazivKripta) {
+    window.location.href = `http://127.0.0.1:5000/buyKripto?nazivKripta=${nazivKripta}&kolikoKripta=${kolikoKripta}&ulozeno=${ulozeno}&valutaPlacanja=${valutaPlacanja}`;
   }
 </script>
 

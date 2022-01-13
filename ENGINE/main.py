@@ -12,7 +12,7 @@ from flask_marshmallow import Marshmallow
 from pymysql import cursors
 from models import user
 
-from dbFunctions import app, userExists, SignUpUser, LoginData, AddCardInfo, AddUserToWalletTable, getUser, UpdateUser, AddMoneyToCard, ConvertUSDToTether, updateUserAmount, UserHaveWallet, addKriptoToWallet, GetUserWallet
+from dbFunctions import app, userExists, SignUpUser, LoginData, AddCardInfo, AddUserToWalletTable, getUser, UpdateUser, AddMoneyToCard, ConvertUSDToTether, updateUserAmount, UserHaveWallet, addKriptoToWallet, GetUserWallet, PayFromWallet
 
 @app.route('/sign_up', methods=['POST'])
 def signup():
@@ -96,18 +96,118 @@ def kupi():
     content = flask.request.json
     _nazivKripta = content['nazivKripta']
     _kolikoKripta = content['kolikoKripta']
-    _kolikoNovca = content['kolikoNovca']
+    _ulozeno = content['ulozeno']
+    _valutaPlacanja = content['valutaPlacanja']
     _mejl = content['mejl']
 
     if UserHaveWallet(_mejl):
         userWallet = GetUserWallet(_mejl)
-        if userWallet.tether >= float(_kolikoNovca):
-            userWallet.tether = float(userWallet.tether)-float(_kolikoNovca)
-            updateUserAmount(_mejl, userWallet.tether)
-            addKriptoToWallet(_mejl, _nazivKripta, _kolikoKripta)
-            retVal = {'message' : 'Successfully added kripto to wallet.'}, 200    
-        else:
-            retVal = {'message' : 'User does not have enought tether in wallet.'}, 400   
+        match _valutaPlacanja:
+            case 'Tether':
+                if userWallet.tether >= float(_ulozeno):
+                    PayFromWallet(_mejl, _valutaPlacanja , _ulozeno)
+                    addKriptoToWallet(_mejl, _nazivKripta, _kolikoKripta)
+                    retVal = {'message' : 'Successfully added kripto to wallet.'}, 200    
+                else:
+                    retVal = {'message' : 'User does not have enought Tether in wallet.'}, 400              
+            case 'Bitcoin':
+                if userWallet.bitcoin >= float(_ulozeno):
+                    PayFromWallet(_mejl, _valutaPlacanja , _ulozeno)
+                    addKriptoToWallet(_mejl, _nazivKripta, _kolikoKripta)
+                    retVal = {'message' : 'Successfully added kripto to wallet.'}, 200    
+                else:
+                    retVal = {'message' : 'User does not have enought Bitcoin in wallet.'}, 400   
+            case 'Litecoin':
+                if userWallet.litecoin >= float(_ulozeno):
+                    PayFromWallet(_mejl, _valutaPlacanja , _ulozeno)
+                    addKriptoToWallet(_mejl, _nazivKripta, _kolikoKripta)
+                    retVal = {'message' : 'Successfully added kripto to wallet.'}, 200    
+                else:
+                    retVal = {'message' : 'User does not have enought Bitcoin in wallet.'}, 400                 
+            case 'XRP':
+                if userWallet.xrp >= float(_ulozeno):
+                    PayFromWallet(_mejl, _valutaPlacanja , _ulozeno)
+                    addKriptoToWallet(_mejl, _nazivKripta, _kolikoKripta)
+                    retVal = {'message' : 'Successfully added kripto to wallet.'}, 200    
+                else:
+                    retVal = {'message' : 'User does not have enought Litecoin in wallet.'}, 400 
+            case 'Dogecoin':
+                if userWallet.dogecoin >= float(_ulozeno):
+                    PayFromWallet(_mejl, _valutaPlacanja , _ulozeno)
+                    addKriptoToWallet(_mejl, _nazivKripta, _kolikoKripta)
+                    retVal = {'message' : 'Successfully added kripto to wallet.'}, 200    
+                else:
+                    retVal = {'message' : 'User does not have enought Dogecoin in wallet.'}, 400 
+            case 'Stellar':
+                if userWallet.stellar >= float(_ulozeno):
+                    PayFromWallet(_mejl, _valutaPlacanja , _ulozeno)
+                    addKriptoToWallet(_mejl, _nazivKripta, _kolikoKripta)
+                    retVal = {'message' : 'Successfully added kripto to wallet.'}, 200    
+                else:
+                    retVal = {'message' : 'User does not have enought Stellar in wallet.'}, 400 
+            case 'Ethereum':
+                if userWallet.ethereum >= float(_ulozeno):
+                    PayFromWallet(_mejl, _valutaPlacanja , _ulozeno)
+                    addKriptoToWallet(_mejl, _nazivKripta, _kolikoKripta)
+                    retVal = {'message' : 'Successfully added kripto to wallet.'}, 200    
+                else:
+                    retVal = {'message' : 'User does not have enought Ethereum in wallet.'}, 400
+            case 'TRON':
+                if userWallet.tron >= float(_ulozeno):
+                    PayFromWallet(_mejl, _valutaPlacanja , _ulozeno)
+                    addKriptoToWallet(_mejl, _nazivKripta, _kolikoKripta)
+                    retVal = {'message' : 'Successfully added kripto to wallet.'}, 200    
+                else:
+                    retVal = {'message' : 'User does not have enought TRON in wallet.'}, 400
+            case 'Chainlink':
+                if userWallet.chainlink >= float(_ulozeno):
+                    PayFromWallet(_mejl, _valutaPlacanja , _ulozeno)
+                    addKriptoToWallet(_mejl, _nazivKripta, _kolikoKripta)
+                    retVal = {'message' : 'Successfully added kripto to wallet.'}, 200    
+                else:
+                    retVal = {'message' : 'User does not have enought Chainlink in wallet.'}, 400
+            case 'Cardano':
+                if userWallet.cardano >= float(_ulozeno):
+                    PayFromWallet(_mejl, _valutaPlacanja , _ulozeno)
+                    addKriptoToWallet(_mejl, _nazivKripta, _kolikoKripta)
+                    retVal = {'message' : 'Successfully added kripto to wallet.'}, 200    
+                else:
+                    retVal = {'message' : 'User does not have enought Cardano in wallet.'}, 400 
+            case 'Cosmos':
+                if userWallet.cosmos >= float(_ulozeno):
+                    PayFromWallet(_mejl, _valutaPlacanja , _ulozeno)
+                    addKriptoToWallet(_mejl, _nazivKripta, _kolikoKripta)
+                    retVal = {'message' : 'Successfully added kripto to wallet.'}, 200    
+                else:
+                    retVal = {'message' : 'User does not have enought Cosmos in wallet.'}, 400
+            case 'Polygon':
+                if userWallet.polygon >= float(_ulozeno):
+                    PayFromWallet(_mejl, _valutaPlacanja , _ulozeno)
+                    addKriptoToWallet(_mejl, _nazivKripta, _kolikoKripta)
+                    retVal = {'message' : 'Successfully added kripto to wallet.'}, 200    
+                else:
+                    retVal = {'message' : 'User does not have enought Polygon in wallet.'}, 400
+            case 'Solana':
+                if userWallet.solana >= float(_ulozeno):
+                    PayFromWallet(_mejl, _valutaPlacanja , _ulozeno)
+                    addKriptoToWallet(_mejl, _nazivKripta, _kolikoKripta)
+                    retVal = {'message' : 'Successfully added kripto to wallet.'}, 200    
+                else:
+                    retVal = {'message' : 'User does not have enought Solana in wallet.'}, 400
+            case 'Avalanche':
+                if userWallet.avalanche >= float(_ulozeno):
+                    PayFromWallet(_mejl, _valutaPlacanja , _ulozeno)
+                    addKriptoToWallet(_mejl, _nazivKripta, _kolikoKripta)
+                    retVal = {'message' : 'Successfully added kripto to wallet.'}, 200    
+                else:
+                    retVal = {'message' : 'User does not have enought Avalanche in wallet.'}, 400
+            case 'Polkadot':
+                if userWallet.polkadot >= float(_ulozeno):
+                    PayFromWallet(_mejl, _valutaPlacanja , _ulozeno)
+                    addKriptoToWallet(_mejl, _nazivKripta, _kolikoKripta)
+                    retVal = {'message' : 'Successfully added kripto to wallet.'}, 200    
+                else:
+                    retVal = {'message' : 'User does not have enought Polkadot in wallet.'}, 400
     else:
             retVal = {'message' : 'User does not have wallet.'}, 400    
     
