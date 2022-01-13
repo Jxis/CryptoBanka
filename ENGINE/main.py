@@ -187,5 +187,33 @@ def convertUSDToTether():
         retVal = {'message' : 'Not enough money on the account.'}, 400
     return retVal
 
+@app.route('/wallet', methods=['GET'])
+def wallet():
+    content = flask.request.args
+    email = content['email']
+    
+    if not userExists(email):
+        return {'message': 'User does not exist.'}
+    wallet = GetUserWallet(email)
+    wallet_data = {
+        'tether': wallet.tether,
+        'bitcoin': wallet.bitcoin,
+        'litecoin': wallet.litecoin,
+        'xrp': wallet.xrp,
+        'dogecoin': wallet.dogecoin,
+        'stellar': wallet.stellar,
+        'ethereum': wallet.ethereum,
+        'tron': wallet.tron,
+        'chainlink': wallet.chainlink,
+        'cardano': wallet.cardano,
+        'cosmos': wallet.cosmos,
+        'polygon': wallet.polygon,
+        'solana': wallet.solana,
+        'avalanche': wallet.avalanche,
+        'polkadot': wallet.polkadot
+    }
+     
+    return wallet_data
+
 if __name__ == "__main__":
     app.run(port=5001)

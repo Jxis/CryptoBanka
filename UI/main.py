@@ -5,6 +5,8 @@ from requests import Request, Session
 import requests
 from werkzeug.utils import redirect
 from werkzeug.wrappers import response
+import jinja2
+from jinja2 import filters
 
 
 app = Flask(__name__)
@@ -125,7 +127,8 @@ def sign_up():
 @app.route('/logout')
 def logout():
     setattr(session, "user", None)
-    return render_template("home.html", message="User loggged out.")
+    #return render_template("home.html", message="User loggged out.")
+    return redirect(url_for("home"))
 
 @app.route('/user', methods=['GET'])
 def user():
@@ -311,7 +314,20 @@ def editUser():
 
 @app.route('/wallet')
 def wallet():
-    return render_template("wallet.html")
+    _email = getattr(session, "user")
+    if _email == None:
+        return "<p>User not logged in.</p>"
+
+    header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    req = requests.get("http://127.0.0.1:5001/wallet?email={}".format(_email),                           
+                        headers=header)
+    response = json.loads(jsonify(req.text).json)
+
+    _code = req.status_code
+    if (_code == 200):
+        setattr(session, "wallet_data", response)
+        return render_template("wallet.html", response = response)
+    return render_template('user.html') #, message=_message)
 
 @app.route('/addMoney', methods=['POST'])
 def addMoney():
@@ -362,4 +378,5 @@ def convertUSDToTether():
     return redirect(url_for("user"), message = _message)
 
 if __name__ == "__main__":
+    setattr(session, "user", None)
     app.run(port=5000)
