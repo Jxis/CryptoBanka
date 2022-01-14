@@ -1,5 +1,3 @@
-from email import message
-from getpass import getuser
 from types import MethodDescriptorType
 from flask import Flask, render_template, request, json, session, jsonify, flash, redirect, url_for
 from flask.helpers import url_for
@@ -42,16 +40,15 @@ session.headers.update(headers)
 @app.route('/')
 def home():
     response = session.get(url, params=parameters)
-    user = getattr(session, "user")
     return render_template("home.html",
-                           response=json.loads(response.text)['data'], user = user)
+                           response=json.loads(response.text)['data'])
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     #mozemo mozda da ubacimo proveru da li vec posotiji neko u sesiji
     if request.method == 'GET':
-        return render_template("login.html", user = getattr(session, "user"))
+        return render_template("login.html")
     else:
         _email = request.form['email']
         _password = request.form['password']
@@ -67,18 +64,21 @@ def login():
         _message = response['message']
         _code = req.status_code
         if (_code == 200):
+            #znaci da je sve okej, da postoji korisnik sa datim emailom i lozinkom i ovde cemo da ga stavimo
+            # u sesiju i da vratimo stranicu recimo home
+            #session["usr"] = request.form['email'] #ovo iz nekog razloga ne radi
             setattr(session, "user", _email)
-            response = session.get(url, params=parameters)
-            return render_template("home.html",
-                           response=json.loads(response.text)['data'], user = user, message = "You have logged in.")
+            #session["user_email"] = _email
+            return redirect(url_for("home"))
         else:
-            return render_template("login.html", message=_message, user = getattr(session, "user"))
+            # Vratimo login, sa ispisom wrong email or password
+            return render_template("login.html", message=_message)
 
 
 @app.route('/sign_up', methods=['GET', 'POST'])
 def sign_up():
     if request.method == 'GET':
-        return render_template('sign_up.html', user = getattr(session, "user"))
+        return render_template('sign_up.html')
     else:
         _firstName = request.form['firstName']
         _lastName = request.form['lastName']
@@ -121,16 +121,14 @@ def sign_up():
             setattr(app, "user", _email)
             #session["user_email"] = _email
             return redirect(url_for("verify"))
-        return render_template('sign_up.html', message=_message, user = getattr(session, "user"))
+        return render_template('sign_up.html', message=_message)
 
 
 @app.route('/logout')
 def logout():
     setattr(session, "user", None)
-    response = session.get(url, params=parameters)
-    user = None
-    return render_template("home.html",
-                           response=json.loads(response.text)['data'], user = user, message = "You have logged out.")
+    #return render_template("home.html", message="User loggged out.")
+    return redirect(url_for("home"))
 
 @app.route('/user', methods=['GET'])
 def user():
@@ -181,15 +179,15 @@ def user():
             verified = False
         setattr(session, 'verified', verified)
         #return redirect(url_for("user"), user_data = user_data)
-        return render_template("user.html", user_data = user_data, boolean = verified, user = getattr(session, "user"))
-    return render_template('login.html', user = getattr(session, "user"))
+        return render_template("user.html", user_data = user_data, boolean = verified)
+    return render_template('login.html') #, message=_message)
 
 @app.route('/verify', methods=['GET', 'POST'])
 def verify():
     temp = getattr(session, "user")
     if temp != None:
         if request.method == 'GET':
-            return render_template('verify.html', user = getattr(session, "user"))
+            return render_template('verify.html')
         else:
             _cardNum = request.form['cardNum']
             _name = request.form['name']
@@ -223,7 +221,7 @@ def verify():
                 setattr(session, 'verified', True)
                 return redirect(url_for("home"))
             else:
-                return render_template("verify.html", message = _message, user = getattr(session, "user"))
+                return render_template("verify.html", message = _message)
     else:
         return redirect(url_for("login"))
 
@@ -232,7 +230,7 @@ def verify():
 def trade():
     if request.method == "GET":
         response = session.get(url, params=parameters)
-        return render_template("trade.html", response=json.loads(response.text)['data'], user = getattr(session, "user"))
+        return render_template("trade.html", response=json.loads(response.text)['data'])
 
 @app.route('/buyKripto', methods=['GET', 'POST'])
 def kupi():
@@ -283,11 +281,11 @@ def editUser():
         if _newPassword1 != "" and _newPassword1 != '':
             if user_data['password'] != _oldPassword:
                 _message = "Check your old password again."
-                render_template('sign_up.html', message=_message, user = getattr(session, "user"))
+                render_template('sign_up.html', message=_message)
 
             if _newPassword1 != _newPassword2:
                 _message = "Passwords don't match."
-                render_template('sign_up.html', message=_message, user = getattr(session, "user"))
+                render_template('sign_up.html', message=_message)
 
         header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         body = json.dumps({
@@ -325,8 +323,8 @@ def wallet():
     _code = req.status_code
     if (_code == 200):
         setattr(session, "wallet_data", response)
-        return render_template("wallet.html", response = response, user = getattr(session, "user"))
-    return render_template('user.html', user = getattr(session, "user"))
+        return render_template("wallet.html", response = response)
+    return render_template('user.html') #, message=_message)
 
 @app.route('/addMoney', methods=['POST'])
 def addMoney():
