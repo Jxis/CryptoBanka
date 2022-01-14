@@ -1,3 +1,4 @@
+from unicodedata import decimal
 from flask import Flask, request, jsonify
 import flask
 from flaskext.mysql import MySQL
@@ -123,36 +124,36 @@ def addKriptoToWallet(email, kriptoName, kriptoAmount):
     wallet = getUsersWallet(email)
     match kriptoName:
         case 'Tether':
-            wallet.tether += float(kriptoAmount) 
+            wallet.tether += decimal(kriptoAmount) 
         case 'Bitcoin':
-            wallet.bitcoin = float(wallet.bitcoin) + float(kriptoAmount) 
+            wallet.bitcoin += decimal(kriptoAmount) 
         case 'Litecoin':
-            wallet.litecoin += float(kriptoAmount) 
+            wallet.litecoin += decimal(kriptoAmount) 
         case 'XRP':
-            wallet.xrp += float(kriptoAmount) 
+            wallet.xrp += decimal(kriptoAmount) 
         case 'Dogecoin':
-            wallet.dogecoin += float(kriptoAmount) 
+            wallet.dogecoin += decimal(kriptoAmount) 
         case 'Stellar':
-            wallet.stellar += float(kriptoAmount) 
+            wallet.stellar += decimal(kriptoAmount) 
         case 'Ethereum':
-            wallet.ethereum += float(kriptoAmount)
+            wallet.ethereum += decimal(kriptoAmount)
         case 'TRON':
-            wallet.tron += float(kriptoAmount)
+            wallet.tron += decimal(kriptoAmount)
         case 'Chainlink':
-            wallet.chainlink += float(kriptoAmount)
+            wallet.chainlink += decimal(kriptoAmount)
         case 'Cardano':
-            wallet.cardano += float(kriptoAmount)
+            wallet.cardano += decimal(kriptoAmount)
         case 'Cosmos':
-            wallet.cosmos += float(kriptoAmount)
+            wallet.cosmos += decimal(kriptoAmount)
         case 'Polygon':
-            wallet.polygon += float(kriptoAmount)
+            wallet.polygon += decimal(kriptoAmount)
         case 'Solana':
-            wallet.solana += float(kriptoAmount)
+            wallet.solana += decimal(kriptoAmount)
         case 'Avalanche':
-            wallet.avalanche += float(kriptoAmount)
+            wallet.avalanche += decimal(kriptoAmount)
         case 'Polkadot':
-            wallet.polkadot += float(kriptoAmount) 
-    db.session.commit();
+            wallet.polkadot += decimal(kriptoAmount) 
+    db.session.commit()
 
 def AddMoneyToCard(email, addedMoney):
     u = getUser(email)
