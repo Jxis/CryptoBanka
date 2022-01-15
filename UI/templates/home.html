@@ -14,7 +14,10 @@
       <th style="border: 1px solid black">Symbol</th>
       <th style="border: 1px solid black">Price</th>
       <th style="border: 1px solid black">Market Cap</th>
+      {% set user = user %}
+      {% if user != None %}
       <th></th>
+      {% endif %}
     </tr>
   </thead>
   <tbody>
@@ -29,17 +32,20 @@
       <td style="border: 1px solid black">
         {{response[mainkey]['quote']['USD']['market_cap']}}
       </td>
-      <td style="border: 1px solid black">
+      {% set user = user %}
+      {% if user != None %}
+
+      <td style="border: 1px solid black">  
         <button
           onclick="tradeFunction(`{{mainkey}}`)"
-          style="width: 100%; border: none; background: transparent"
-        >
-          Click on me
-        </button>
+          style="width: 100%; border: none; background: transparent">
+          Trade
+        </button>     
       </td>
-    </tr>
 
+      {% endif %}
     {% endfor %}
+    </tr>
 
     <script>
       function tradeFunction(value) {
@@ -47,6 +53,7 @@
         window.location.href = `http://127.0.0.1:5000/trade?token=${value}`;
       }
     </script>
+   
   </tbody>
 </table>
 

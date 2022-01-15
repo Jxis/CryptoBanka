@@ -10,7 +10,6 @@ from werkzeug.wrappers import response
 import jinja2
 from jinja2 import filters
 
-
 app = Flask(__name__)
 app.secret_key = 'key'
 
@@ -44,14 +43,15 @@ def home():
     response = session.get(url, params=parameters)
     user = getattr(session, "user")
     return render_template("home.html",
-                           response=json.loads(response.text)['data'], user = user)
+                           response=json.loads(response.text)['data'],
+                           user=user)
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     #mozemo mozda da ubacimo proveru da li vec posotiji neko u sesiji
     if request.method == 'GET':
-        return render_template("login.html", user = getattr(session, "user"))
+        return render_template("login.html", user=getattr(session, "user"))
     else:
         _email = request.form['email']
         _password = request.form['password']
@@ -70,15 +70,19 @@ def login():
             setattr(session, "user", _email)
             response = session.get(url, params=parameters)
             return render_template("home.html",
-                           response=json.loads(response.text)['data'], user = user, message = "You have logged in.")
+                                   response=json.loads(response.text)['data'],
+                                   user=user,
+                                   message="You have logged in.")
         else:
-            return render_template("login.html", message=_message, user = getattr(session, "user"))
+            return render_template("login.html",
+                                   message=_message,
+                                   user=getattr(session, "user"))
 
 
 @app.route('/sign_up', methods=['GET', 'POST'])
 def sign_up():
     if request.method == 'GET':
-        return render_template('sign_up.html', user = getattr(session, "user"))
+        return render_template('sign_up.html', user=getattr(session, "user"))
     else:
         _firstName = request.form['firstName']
         _lastName = request.form['lastName']
@@ -121,7 +125,9 @@ def sign_up():
             setattr(app, "user", _email)
             #session["user_email"] = _email
             return redirect(url_for("verify"))
-        return render_template('sign_up.html', message=_message, user = getattr(session, "user"))
+        return render_template('sign_up.html',
+                               message=_message,
+                               user=getattr(session, "user"))
 
 
 @app.route('/logout')
@@ -130,7 +136,10 @@ def logout():
     response = session.get(url, params=parameters)
     user = None
     return render_template("home.html",
-                           response=json.loads(response.text)['data'], user = user, message = "You have logged out.")
+                           response=json.loads(response.text)['data'],
+                           user=user,
+                           message="You have logged out.")
+
 
 @app.route('/user', methods=['GET'])
 def user():
@@ -140,8 +149,8 @@ def user():
     if _email == None:
         return "<p>User not logged in.</p>"
     header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-    req = requests.get("http://127.0.0.1:5001/user?email={}".format(_email),                           
-                        headers=header)
+    req = requests.get("http://127.0.0.1:5001/user?email={}".format(_email),
+                       headers=header)
     response = json.loads(jsonify(req.text).json)
 
     name = response['name']
@@ -181,15 +190,20 @@ def user():
             verified = False
         setattr(session, 'verified', verified)
         #return redirect(url_for("user"), user_data = user_data)
-        return render_template("user.html", user_data = user_data, boolean = verified, user = getattr(session, "user"))
-    return render_template('login.html', user = getattr(session, "user"))
+        return render_template("user.html",
+                               user_data=user_data,
+                               boolean=verified,
+                               user=getattr(session, "user"))
+    return render_template('login.html', user=getattr(session, "user"))
+
 
 @app.route('/verify', methods=['GET', 'POST'])
 def verify():
     temp = getattr(session, "user")
     if temp != None:
         if request.method == 'GET':
-            return render_template('verify.html', user = getattr(session, "user"))
+            return render_template('verify.html',
+                                   user=getattr(session, "user"))
         else:
             _cardNum = request.form['cardNum']
             _name = request.form['name']
@@ -223,7 +237,9 @@ def verify():
                 setattr(session, 'verified', True)
                 return redirect(url_for("home"))
             else:
-                return render_template("verify.html", message = _message, user = getattr(session, "user"))
+                return render_template("verify.html",
+                                       message=_message,
+                                       user=getattr(session, "user"))
     else:
         return redirect(url_for("login"))
 
@@ -232,7 +248,10 @@ def verify():
 def trade():
     if request.method == "GET":
         response = session.get(url, params=parameters)
-        return render_template("trade.html", response=json.loads(response.text)['data'], user = getattr(session, "user"))
+        return render_template("trade.html",
+                               response=json.loads(response.text)['data'],
+                               user=getattr(session, "user"))
+
 
 @app.route('/buyKripto', methods=['GET', 'POST'])
 def kupi():
@@ -243,27 +262,26 @@ def kupi():
     _valutaPlacanja = request.args.get('valutaPlacanja')
     _mejl = getattr(session, "user")
 
-    header = {
-        'Content-type': 'application/json',
-        'Accept': 'text/plain'
-    }   
+    header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     body = json.dumps({
-        'nazivKripta' : _nazivKripta,
-        'kolikoKripta' : _kolikoKripta,
-        'ulozeno' : _ulozeno,
-        'valutaPlacanja' : _valutaPlacanja,
-        'mejl' : _mejl
+        'nazivKripta': _nazivKripta,
+        'kolikoKripta': _kolikoKripta,
+        'ulozeno': _ulozeno,
+        'valutaPlacanja': _valutaPlacanja,
+        'mejl': _mejl
     })
 
-    req = requests.post("http://127.0.0.1:5001/buyKripto", data=body, headers=header)
+    req = requests.post("http://127.0.0.1:5001/buyKripto",
+                        data=body,
+                        headers=header)
     response = (req.json())
     _message = response['message']
     _code = req.status_code
-    
+
     if _code == 200:
         return redirect(url_for("home"))
     else:
-        return render_template("verify.html", message = _message)
+        return render_template("verify.html", message=_message)
 
 
 @app.route('/editUser', methods=['GET', 'POST'])
@@ -288,11 +306,15 @@ def editUser():
         if _newPassword1 != "" and _newPassword1 != '':
             if user_data['password'] != _oldPassword:
                 _message = "Check your old password again."
-                render_template('sign_up.html', message=_message, user = getattr(session, "user"))
+                render_template('sign_up.html',
+                                message=_message,
+                                user=getattr(session, "user"))
 
             if _newPassword1 != _newPassword2:
                 _message = "Passwords don't match."
-                render_template('sign_up.html', message=_message, user = getattr(session, "user"))
+                render_template('sign_up.html',
+                                message=_message,
+                                user=getattr(session, "user"))
 
         header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         body = json.dumps({
@@ -314,7 +336,8 @@ def editUser():
         _code = req.status_code
         if (_code == 200):
             return redirect(url_for("user"))
-        return redirect(url_for("editUser"), message = _message)
+        return redirect(url_for("editUser"), message=_message)
+
 
 @app.route('/wallet')
 def wallet():
@@ -323,15 +346,18 @@ def wallet():
         return "<p>User not logged in.</p>"
 
     header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-    req = requests.get("http://127.0.0.1:5001/wallet?email={}".format(_email),                           
-                        headers=header)
+    req = requests.get("http://127.0.0.1:5001/wallet?email={}".format(_email),
+                       headers=header)
     response = json.loads(jsonify(req.text).json)
 
     _code = req.status_code
     if (_code == 200):
         setattr(session, "wallet_data", response)
-        return render_template("wallet.html", response = response, user = getattr(session, "user"))
-    return render_template('user.html', user = getattr(session, "user"))
+        return render_template("wallet.html",
+                               response=response,
+                               user=getattr(session, "user"))
+    return render_template('user.html', user=getattr(session, "user"))
+
 
 @app.route('/addMoney', methods=['POST'])
 def addMoney():
@@ -339,10 +365,7 @@ def addMoney():
     email = getattr(session, 'user')
     if addedMoney != '' and addedMoney != "" and addedMoney != 0:
         header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-        body = json.dumps({
-            'email': email,
-            'addedMoney': addedMoney
-        })
+        body = json.dumps({'email': email, 'addedMoney': addedMoney})
         req = requests.post("http://127.0.0.1:5001/addMoney",
                             data=body,
                             headers=header)
@@ -352,11 +375,12 @@ def addMoney():
         _code = req.status_code
         if (_code == 200):
             return redirect(url_for("user"))
-        return redirect(url_for("user"), message = _message)
+        return redirect(url_for("user"), message=_message)
     else:
         _message = "Wrong input"
 
     return redirect(url_for(user))
+
 
 @app.route('/convertUSDToTether', methods=['POST'])
 def convertUSDToTether():
@@ -364,14 +388,11 @@ def convertUSDToTether():
     usdAmount = request.form['usdToTetherAmount']
 
     header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-    body = json.dumps({
-        'email': email,
-        'usdAmount': usdAmount
-    })
+    body = json.dumps({'email': email, 'usdAmount': usdAmount})
     req = requests.post("http://127.0.0.1:5001/convertUSDToTether",
                         data=body,
                         headers=header)
-    
+
     response = (req.json())
     #response = json.loads(jsonify(req.text).json)
 
@@ -379,7 +400,13 @@ def convertUSDToTether():
     _code = req.status_code
     if (_code == 200):
         return redirect(url_for("user"))
-    return redirect(url_for("user"), message = _message)
+    return redirect(url_for("user"), message=_message)
+
+
+@app.route('/transactions')
+def transaction():
+    return render_template('transactions.html', user=getattr(session, "user"))
+
 
 if __name__ == "__main__":
     setattr(session, "user", None)
