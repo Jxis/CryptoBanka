@@ -1,7 +1,24 @@
 {% extends "base.html" %} {% block title %}Login{% endblock %}
 
 {% block content %}
-
-<h1>Transaction page</h1>
+<div style="text-align: center;">
+    <br><br>
+    <h4>NEW TRANSACTION</h4><br>
+    <form method="POST" action="/transactions">
+        <input style="width: 245px;" type="email" placeholder="Enter email" id="email" name="email">
+        <input style="margin-left: 10px;" type="number" step="0.01" id="ulozeno" name="ulozeno" placeholder="Enter amount">
+        <select style="margin-left: 10px; height: 30px;" id="valuta" name="valuta">
+            <option value="Tether">Tether</option>
+            {%for temp in response %}
+            <option value="{{response[temp]['name']}}">{{response[temp]['name']}}</option>
+            {%endfor %}
+        </select>
+        <input style="margin-left: 15px;" type="submit" value="SEND">
+    </form>
+</div><br><br>
+<div style="text-align: center; margin-top: 50px;">
+    <h1>Lista of transaction</h1>
+</div>
 
 {% endblock %}
+

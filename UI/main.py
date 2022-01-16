@@ -1,5 +1,6 @@
 from email import message
 from getpass import getuser
+from tempfile import gettempdir
 from types import MethodDescriptorType
 from flask import Flask, render_template, request, json, session, jsonify, flash, redirect, url_for
 from flask.helpers import url_for
@@ -403,10 +404,35 @@ def convertUSDToTether():
     return redirect(url_for("user"), message=_message)
 
 
-@app.route('/transactions')
+@app.route('/transactions', methods=['GET','POST'])
 def transaction():
-    return render_template('transactions.html', user=getattr(session, "user"))
+    if request.method == 'GET':
+        response = session.get(url, params=parameters)
+        return render_template('transactions.html', response=json.loads(response.text)['data'], user=getattr(session, 'user'))
+    else:
+        _emailSender = getattr(session, 'user')
+        _emailReciver = request.form['email']
+        _ulozeno = request.form['ulozeno']
+        _valuta = request.form['valuta']
 
+        header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+        body = json.dumps({
+            'emailSender' : _emailSender,
+            'emailReciver' : _emailReciver,
+            'ulozeno' : _ulozeno,
+            'valuta' : _valuta
+        })
+
+        req = requests.post("http://127.0.0.1:5001/newTransaction",
+                            data=body,
+                            headers=header)
+
+        response = req.json()
+        _message = response['message']
+        _code = req.status_code
+
+        valute = session.get(url, params=parameters)
+        return render_template('transactions.html', response=json.loads(valute.text)['data'], user=getattr(session, 'user'), message = response["message"])
 
 if __name__ == "__main__":
     setattr(session, "user", None)
