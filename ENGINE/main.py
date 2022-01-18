@@ -23,7 +23,7 @@ from flask_marshmallow import Marshmallow
 from pymysql import cursors
 from models import user
 
-from dbFunctions import app, userExists, SignUpUser, LoginData, AddCardInfo, AddUserToWalletTable, getUser, UpdateUser, AddMoneyToCard, ConvertUSDToTether, updateUserAmount, UserHaveWallet, addKriptoToWallet, GetUserWallet, PayFromWallet, AddTransactionToDB
+from dbFunctions import app, userExists, SignUpUser, LoginData, AddCardInfo, AddUserToWalletTable, getUser, UpdateUser, AddMoneyToCard, ConvertUSDToTether, updateUserAmount, UserHaveWallet, addKriptoToWallet, GetUserWallet, PayFromWallet, AddTransactionToDB, ChangeTransactionStatus
 
 @app.route('/sign_up', methods=['POST'])
 def signup():
@@ -240,6 +240,12 @@ def transaction():
     _ulozeno = content["ulozeno"]
     _valuta = content["valuta"]    
 
+    randNum = random.randint(0,1000)
+    rawId = _emailSender + _emailReciver + _ulozeno + str(randNum)
+    hashId = sha3.keccak_256(rawId.encode('utf-8')).hexdigest()
+
+    AddTransactionToDB(hashId, _emailSender, current_time, 'In progerss', _emailReciver, _valuta, _ulozeno)
+
     if userExists(_emailReciver):
         if UserHaveWallet(_emailReciver):
             if UserHaveWallet(_emailSender):
@@ -248,27 +254,23 @@ def transaction():
                 code = provera['code']
                 if code == 200:
                     PayFromWallet(_emailSender, _valuta , _ulozeno)
-                    
-                    randNum = random.randint(0,1000)
-                    rawId = _emailSender + _emailReciver + _ulozeno + str(randNum)
-                    hashId = sha3.keccak_256(rawId.encode('utf-8')).hexdigest()
-
-                    AddTransactionToDB(hashId, _emailSender, current_time, 'In progerss', _emailReciver, _valuta, _ulozeno)
 
                     #sleep 5min u niti
-
+                    ChangeTransactionStatus(hashId, 'Approved')
                     addKriptoToWallet(_emailReciver, _valuta, _ulozeno)
-
-                    #promeni stanje transakcije u bazi
-
+                    
                     retVal = {'message' : 'Transaction from user: {} to user: {} is SUCCESSFUL'.format(_emailSender, _emailReciver)}, 200
                 else:
+                    ChangeTransactionStatus(hashId, "Denied")
                     retVal = {'message' : 'User with {} mail does not have enough {} in wallet.'.format(_emailSender, _valuta)}, 400
             else:
+                ChangeTransactionStatus(hashId, "Denied")
                 retVal = {'message' : 'User with {} mail does not have wallet.'.format(_emailSender)}, 400
         else:
+            ChangeTransactionStatus(hashId, "Denied")
             retVal = {'message' : 'User with {} mail does not have wallet.'.format(_emailReciver)}, 400
     else:
+        ChangeTransactionStatus(hashId, "Denied")
         retVal = {'message' : 'User with {} mail does not exists.'.format(_emailReciver)}, 400
 
     return retVal

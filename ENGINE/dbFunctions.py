@@ -229,6 +229,10 @@ def AddTransactionToDB(_hashId, _userEmail, _initTime, _status, _targetEmail, _c
     db.session.add(tr)
     db.session.commit()
 
+def ChangeTransactionStatus(_hashID, _status):
+    tr = user.Transaction.query.filter(user.Transaction.hashId == _hashID)
+    tr.status = _status
+    db.session.commit()
 
 def AllTransactionsForTargerUser(email: str):
     listOfAllTransactions = user.Transaction.query.all()
