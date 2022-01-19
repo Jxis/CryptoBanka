@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from marshmallow.fields import Decimal
 from pymysql import NULL, cursors
+from sqlalchemy import null
 from models import user
 
 db=SQLAlchemy()
@@ -226,15 +227,18 @@ def ConvertUSDToTether(email, usdAmount):
 
 
 #Upis nove transakcije u bazu  (istestirati kad se napravi za transakciju)
-def AddTransactionToDB(_hashId, _userEmail, _initTime, _status, _targetEmail, _cryptoType, _exchangedQuantity):
-    tr = user.Transaction(_hashId, _userEmail, _initTime, _status, _targetEmail, _cryptoType, _exchangedQuantity)
+def AddTransactionToDB(_hashId, _userEmail, _initTime, _status, _targetEmail, _cryptoType, _exchangedQuantity, gas):
+    tr = user.Transaction(_hashId, _userEmail, _initTime, _status, _targetEmail, _cryptoType, _exchangedQuantity, gas)
     db.session.add(tr)
     db.session.commit()
 
 def ChangeTransactionStatus(_hashID, _status):
-    tr = user.Transaction.query.filter(user.Transaction.hashId == _hashID)
-    tr.status = _status
-    db.session.commit()
+    listOfAllTransactions = user.Transaction.query.all()
+    for tr in listOfAllTransactions:
+        if(tr.hashId == _hashID):
+            tr.status = _status
+            db.session.commit()
+            break
 
 def AllTransactionsForTargerUser(email: str):
     listOfAllTransactions = user.Transaction.query.all()

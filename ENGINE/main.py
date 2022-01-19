@@ -244,17 +244,20 @@ def transaction():
     _ulozeno = content["ulozeno"]
     _valuta = content["valuta"]    
 
+
+    zaSkidanje = 1.05 * float(_ulozeno)
+
     randNum = random.randint(0,1000)
     rawId = _emailSender + _emailReciver + _ulozeno + str(randNum)
     hashId = sha3.keccak_256(rawId.encode('utf-8')).hexdigest()
 
-    AddTransactionToDB(hashId, _emailSender, current_time, 'In progerss', _emailReciver, _valuta, _ulozeno)
+    AddTransactionToDB(hashId, _emailSender, current_time, 'In progerss', _emailReciver, _valuta, _ulozeno, float(_ulozeno)*0.05)
 
     if userExists(_emailReciver):
         if UserHaveWallet(_emailReciver):
             if UserHaveWallet(_emailSender):
                 userWallet = GetUserWallet(_emailSender)
-                provera = ProveraStanjaNovca(userWallet, _valuta, _ulozeno)
+                provera = ProveraStanjaNovca(userWallet, _valuta, zaSkidanje)
                 code = provera['code']
                 if code == 200:
                     PayFromWallet(_emailSender, _valuta , _ulozeno)
