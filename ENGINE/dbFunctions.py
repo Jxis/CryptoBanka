@@ -163,7 +163,9 @@ def addKriptoToWallet(email, kriptoName, kriptoAmount):
         case 'Avalanche':
             wallet.avalanche = float(wallet.avalanche) + float(kriptoAmount)
         case 'Polkadot':
-            wallet.polkadot += float(kriptoAmount) 
+            wallet.polkadot = float(wallet.polkadot) + float(kriptoAmount)
+        case 'Tether':
+            wallet.tether =  float(wallet.tether) + float(kriptoAmount)
     db.session.commit()
 
 def PayFromWallet(email, kriptoName, kriptoAmount):
@@ -198,7 +200,7 @@ def PayFromWallet(email, kriptoName, kriptoAmount):
         case 'Avalanche':
             wallet.avalanche = float(wallet.avalanche) - float(kriptoAmount)
         case 'Polkadot':
-            wallet.polkadot += float(kriptoAmount) 
+            wallet.polkadot = float(wallet.polkadot) - float(kriptoAmount)
     db.session.commit()
 
 def AddMoneyToCard(email, addedMoney):
