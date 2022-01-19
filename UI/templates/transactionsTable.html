@@ -2,7 +2,20 @@
 
 {% block content %}
 
-<h3 align="center">List of transactions</h3>
+<h3 align="center">List of transactions</h3><br><br>
+
+<form method="POST" action="/filterTransactions">
+    <table>
+        <tr>
+            <td><input type="text" class="form-control" id="targetEmail" name="targetEmail" placeholder="Target Email"></td>
+            <td><input type="datetime" class="form-control" id="initTimeStart" name="initTimeStart" placeholder="Init Time Start"></td>
+            <td><input type="datetime" class="form-control" id="initTimeEnd" name="initTimeEnd" placeholder="Init Time End"></td>
+            <td>&nbsp;</td>
+            <td><input type="text" class="form-control" id="crypto" name="crypto" placeholder="Crypto Type"></td>
+            <td><input type="submit" value="Filter"></td>
+        </tr>
+    </table><br>
+</form>
 
 <table style="width: 100%; border: 1px solid black;">
     <tr>

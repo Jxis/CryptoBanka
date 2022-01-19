@@ -7,7 +7,7 @@ from tkinter.filedialog import SaveFileDialog
 from xmlrpc.client import DateTime
 from flask import Flask
 from requests.api import get
-from datetime import datetime
+from datetime import date, datetime
 import random
 import hashlib, binascii
 import sha3
@@ -410,6 +410,67 @@ def TransSortByTime():
 
     object_schema = TransactionSchema()   
     json_string = object_schema.dumps(lista, many=True)
+
+    return json_string
+
+@app.route('/filterTransactions', methods=['POST'])
+def filterTransactions():
+    content = flask.request.json
+    email = content['email']
+    targetEmail = content['targetEmail']
+    initTimeStart1 = content['initTimeStart']
+    initTimeEnd1 = content['initTimeEnd']
+    crypto = content['crypto']
+
+    lista = AllTransactionsForTargerUser(email)
+
+    newList = []
+
+    if targetEmail != "" and initTimeStart1 != "" and initTimeEnd1 != "" and crypto != "":  
+        initTimeStart = datetime.strptime(initTimeStart1, '%Y-%m-%d %H:%M:%S')
+        initTimeEnd = datetime.strptime(initTimeEnd1, '%Y-%m-%d %H:%M:%S')
+        for t in lista:
+            if t.targetEmail == targetEmail and t.initTime >= initTimeStart and t.initTime <= initTimeEnd and t.cryptoType == crypto:
+                newList.append(t)
+
+    elif targetEmail == "" and initTimeStart1 != "" and initTimeEnd1 != "" and crypto == "": 
+        initTimeStart = datetime.strptime(initTimeStart1, '%Y-%m-%d %H:%M:%S')
+        initTimeEnd = datetime.strptime(initTimeEnd1, '%Y-%m-%d %H:%M:%S')
+        for t in lista:
+            if t.initTime >= initTimeStart and t.initTime <= initTimeEnd:
+                newList.append(t)
+
+    elif targetEmail != "" and initTimeStart1 == "" and initTimeEnd1 == "" and crypto == "": 
+        for t in lista:
+            if t.targetEmail == targetEmail:
+                newList.append(t)
+
+    elif targetEmail == "" and initTimeStart1 == "" and initTimeEnd1 == "" and crypto != "": 
+        for t in lista:
+            if t.cryptoType == crypto:
+                newList.append(t)
+
+    elif targetEmail != "" and initTimeStart1 == "" and initTimeEnd1 == "" and crypto != "": 
+        for t in lista:
+            if t.cryptoType == crypto and t.targetEmail == targetEmail:
+                newList.append(t)
+
+    elif targetEmail != "" and initTimeStart1 != "" and initTimeEnd1 != "" and crypto == "": 
+        initTimeStart = datetime.strptime(initTimeStart1, '%Y-%m-%d %H:%M:%S')
+        initTimeEnd = datetime.strptime(initTimeEnd1, '%Y-%m-%d %H:%M:%S')
+        for t in lista:
+            if t.targetEmail == targetEmail and t.initTime >= initTimeStart and t.initTime <= initTimeEnd:
+                newList.append(t)
+
+    elif targetEmail == "" and initTimeStart1 != "" and initTimeEnd1 != "" and crypto != "": 
+        initTimeStart = datetime.strptime(initTimeStart1, '%Y-%m-%d %H:%M:%S')
+        initTimeEnd = datetime.strptime(initTimeEnd1, '%Y-%m-%d %H:%M:%S')
+        for t in lista:
+            if t.cryptoType == crypto and t.initTime >= initTimeStart and t.initTime <= initTimeEnd:
+                newList.append(t)
+
+    object_schema = TransactionSchema()   
+    json_string = object_schema.dumps(newList, many=True)
 
     return json_string
 

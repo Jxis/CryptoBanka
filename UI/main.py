@@ -1,5 +1,6 @@
 from email import message
 from getpass import getuser
+import string
 from tempfile import gettempdir
 from types import MethodDescriptorType
 from flask import Flask, render_template, request, json, session, jsonify, flash, redirect, url_for
@@ -475,6 +476,45 @@ def TransSortByTime():
                 'email': temp
             })
     req = requests.post("http://127.0.0.1:5001/TransSortByTime",
+                                data=body,
+                                headers=header)
+
+    response = json.loads(jsonify(req.text).json)
+
+    return render_template("transactionsTable.html", message = response, l = len(response))
+
+@app.route("/filterTransactions", methods=['POST'])
+def filterTransactions():
+    temp = getattr(session, "user")
+
+    _targetEmail = request.form['targetEmail']
+    _initTimeStart = request.form['initTimeStart']
+    _initTimeEnd = request.form['initTimeEnd']
+    _crypto = request.form['crypto']
+
+    if _targetEmail == "" and _initTimeStart == "" and _initTimeEnd == "" and _crypto == "":
+        return redirect(url_for("transactionsTable"))
+
+    if _initTimeStart != "" and _initTimeEnd == "":
+        _initTimeStart = ""
+
+    if _initTimeStart == "" and _initTimeEnd != "":
+        _initTimeEnd = ""
+
+    if 'T' in _initTimeStart:
+        _initTimeStart = _initTimeStart.replace("T", " ")
+    if 'T' in _initTimeEnd:
+        _initTimeEnd = _initTimeEnd.replace("T", " ")
+
+    header = {'Content-type': 'application/json','Accept': 'text/plain'}
+    body = json.dumps({
+                'email': temp,
+                'targetEmail' : _targetEmail,
+                'initTimeStart' : _initTimeStart, 
+                'initTimeEnd' : _initTimeEnd,
+                'crypto' : _crypto
+            })
+    req = requests.post("http://127.0.0.1:5001/filterTransactions",
                                 data=body,
                                 headers=header)
 
