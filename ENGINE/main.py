@@ -15,15 +15,19 @@ from sha3 import keccak_256
 
 app = Flask(__name__)
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session
 import flask
+from requests import Request, Session
 from flaskext.mysql import MySQL
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from pymysql import cursors
 from models import user
+from models.user import TransactionSchema
 
-from dbFunctions import app, userExists, SignUpUser, LoginData, AddCardInfo, AddUserToWalletTable, getUser, UpdateUser, AddMoneyToCard, ConvertUSDToTether, updateUserAmount, UserHaveWallet, addKriptoToWallet, GetUserWallet, PayFromWallet, AddTransactionToDB, ChangeTransactionStatus
+from dbFunctions import app, userExists, SignUpUser, LoginData, AddCardInfo, AddUserToWalletTable, getUser, UpdateUser, AddMoneyToCard, ConvertUSDToTether, updateUserAmount, UserHaveWallet, addKriptoToWallet, GetUserWallet, PayFromWallet, AddTransactionToDB, ChangeTransactionStatus, AllTransactionsForTargerUser
+
+session = Session()
 
 @app.route('/sign_up', methods=['POST'])
 def signup():
@@ -354,5 +358,62 @@ def ProveraStanjaNovca(userWallet,_valutaPlacanja, _ulozeno):
                 retVal = {'message' : 'User does not have enought Polkadot in wallet.', 'code' : 400}
     return retVal
 
+@app.route('/transactionsTable', methods=['POST'])
+def transactionsTable():
+    content = flask.request.json
+    email = content['email']
+    lista = [0]
+
+    lista = AllTransactionsForTargerUser(email)
+
+    object_schema = TransactionSchema()
+    json_string = object_schema.dumps(lista, many=True)
+    return json_string
+
+@app.route('/TransSortByTargetEmail', methods=['POST'])
+def TransSortByTargetEmail():
+    content = flask.request.json
+    email = content['email']
+    lista = [0]
+
+    lista = AllTransactionsForTargerUser(email)
+
+    tempSortEmail = getattr(session, "sortTargetEmail")
+
+    if tempSortEmail == "False":
+        lista.sort(key=lambda x: x.targetEmail)
+        setattr(session, "sortTargetEmail", "True")
+    else:
+        lista.sort(key=lambda x: x.targetEmail, reverse=True)
+        setattr(session, "sortTargetEmail", "False")
+
+    object_schema = TransactionSchema()
+    json_string = object_schema.dumps(lista, many=True)
+    return json_string
+
+@app.route('/TransSortByTime', methods=['POST'])
+def TransSortByTime():
+    content = flask.request.json
+    email = content['email']
+    lista = [0]
+
+    lista = AllTransactionsForTargerUser(email)
+
+    tempSortTime = getattr(session, "sortTime")
+
+    if tempSortTime == "False":
+        lista.sort(key=lambda x: x.initTime)
+        setattr(session, "sortTime", "True")
+    else:
+        lista.sort(key=lambda x: x.initTime, reverse=True)
+        setattr(session, "sortTime", "False")
+
+    object_schema = TransactionSchema()   
+    json_string = object_schema.dumps(lista, many=True)
+
+    return json_string
+
 if __name__ == "__main__":
+    setattr(session, "sortTargetEmail", "False")
+    setattr(session, "sortTime", "False")
     app.run(port=5001)

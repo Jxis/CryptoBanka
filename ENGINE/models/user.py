@@ -87,8 +87,8 @@ class Wallet(db.Model):
 
 class Transaction(db.Model):
     __tablename__ = 'transaction' #ovo je da znamo na koju tabelu u bazi se refereciramo
-    hashId = db.Column(db.String(32))
-    userEmail = db.Column(db.String(32), primary_key=True)
+    hashId = db.Column(db.String(32), primary_key=True)
+    userEmail = db.Column(db.String(32))
     initTime = db.Column(db.DateTime)    #vreme iniciranja transakcije
     status = db.Column(db.String(32))    #da li je transakcija odobrena ili odbijena
     targetEmail = db.Column(db.String(32))    #email na koji se prenosi novac
@@ -103,3 +103,13 @@ class Transaction(db.Model):
         self.targetEmail = _targetEmail
         self.cryptoType = _cryptoType;
         self.exchangedQuantity = _exchangedQuantity
+
+
+class TransactionSchema(Schema):
+    hashId = fields.Str()
+    userEmail = fields.Str()
+    initTime = fields.DateTime()
+    status = fields.Str()
+    targetEmail = fields.Str()
+    cryptoType = fields.Str()
+    exchangedQuantity = fields.Float()

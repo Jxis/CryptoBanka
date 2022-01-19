@@ -434,6 +434,55 @@ def transaction():
         valute = session.get(url, params=parameters)
         return render_template('transactions.html', response=json.loads(valute.text)['data'], user=getattr(session, 'user'), message = response["message"])
 
+@app.route('/transactionsTable')
+def transactionsTable():
+    temp = getattr(session, "user")
+
+    header = {'Content-type': 'application/json','Accept': 'text/plain'}
+    body = json.dumps({
+                'email': temp
+            })
+    req = requests.post("http://127.0.0.1:5001/transactionsTable",
+                                data=body,
+                                headers=header)
+
+    response = json.loads(jsonify(req.text).json)
+
+    return render_template("transactionsTable.html", message = response, l = len(response))
+
+@app.route("/TransSortByTargetEmail", methods=['GET'])
+def TransSortByTargetEmail():
+    temp = getattr(session, "user")
+
+    header = {'Content-type': 'application/json','Accept': 'text/plain'}
+    body = json.dumps({
+                'email': temp
+            })
+    req = requests.post("http://127.0.0.1:5001/TransSortByTargetEmail",
+                                data=body,
+                                headers=header)
+
+    response = json.loads(jsonify(req.text).json)
+
+    return render_template("transactionsTable.html", message = response, l = len(response))
+
+@app.route("/TransSortByTime", methods=['GET'])
+def TransSortByTime():
+    temp = getattr(session, "user")
+
+    header = {'Content-type': 'application/json','Accept': 'text/plain'}
+    body = json.dumps({
+                'email': temp
+            })
+    req = requests.post("http://127.0.0.1:5001/TransSortByTime",
+                                data=body,
+                                headers=header)
+
+    response = json.loads(jsonify(req.text).json)
+
+    return render_template("transactionsTable.html", message = response, l = len(response))
+
+
 if __name__ == "__main__":
     setattr(session, "user", None)
     app.run(port=5000)

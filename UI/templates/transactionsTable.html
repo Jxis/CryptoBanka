@@ -1,0 +1,29 @@
+{% extends "base.html" %} {% block title %}Trable of transactions{% endblock %}
+
+{% block content %}
+
+<h3 align="center">List of transactions</h3>
+
+<table style="width: 100%; border: 1px solid black;">
+    <tr>
+        <th style="border: 1px solid black;">Target Email<a href="/TransSortByTargetEmail">▲▼</a></th>
+        <th style="border: 1px solid black;">Time<a href="/TransSortByTime">▲▼</a></th>  
+        <th style="border: 1px solid black;">Status</th>
+        <th style="border: 1px solid black;">Crypto Type</th>
+        <th style="border: 1px solid black;">Exchanged Quantity</th> 
+    </tr>
+
+    {% for i in range(l) %}
+
+    <tr>
+        <td>{{message[i]["targetEmail"]}}</td>
+        <td>{{message[i]["initTime"]}}</td>
+        <td>{{message[i]["status"]}}</td>
+        <td>{{message[i]["cryptoType"]}}</td>
+        <td>{{message[i]["exchangedQuantity"]}}</td>
+    </tr>
+
+    {% endfor %}
+</table>
+
+{% endblock %}
