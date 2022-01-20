@@ -25,6 +25,7 @@
         <th style="border: 1px solid black;">Status</th>
         <th style="border: 1px solid black;">Crypto Type</th>
         <th style="border: 1px solid black;">Exchanged Quantity</th> 
+        <th style="border: 1px solid black;">Transaction Type</th> 
     </tr>
 
     {% for i in range(l) %}
@@ -35,6 +36,7 @@
         <td>{{message[i]["status"]}}</td>
         <td>{{message[i]["cryptoType"]}}</td>
         <td>{{message[i]["exchangedQuantity"]}}</td>
+        <td>{{message[i]["transactionType"]}}</td>
     </tr>
 
     {% endfor %}

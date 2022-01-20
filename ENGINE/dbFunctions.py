@@ -227,8 +227,8 @@ def ConvertUSDToTether(email, usdAmount):
 
 
 #Upis nove transakcije u bazu  (istestirati kad se napravi za transakciju)
-def AddTransactionToDB(_hashId, _userEmail, _initTime, _status, _targetEmail, _cryptoType, _exchangedQuantity, gas):
-    tr = user.Transaction(_hashId, _userEmail, _initTime, _status, _targetEmail, _cryptoType, _exchangedQuantity, gas)
+def AddTransactionToDB(_hashId, _userEmail, _initTime, _status, _targetEmail, _cryptoType, _exchangedQuantity, _gas, _transactionType):
+    tr = user.Transaction(_hashId, _userEmail, _initTime, _status, _targetEmail, _cryptoType, _exchangedQuantity, _gas, _transactionType)
     db.session.add(tr)
     db.session.commit()
 

@@ -95,8 +95,9 @@ class Transaction(db.Model):
     cryptoType = db.Column(db.String(32))   #tip kripto valute koji se prenosi
     exchangedQuantity = db.Column(db.Float(38,10))  # kolicina koja je razmenjena
     gas = db.Column(db.Float(38,10)) #gas iz dodatnog zadatka
+    transactionType = db.Column(db.String(32))
 
-    def __init__(self, _hashId, _userEmail, _initTime, _status, _targetEmail, _cryptoType, _exchangedQuantity, _gas):
+    def __init__(self, _hashId, _userEmail, _initTime, _status, _targetEmail, _cryptoType, _exchangedQuantity, _gas, _transactionType):
         self.hashId = _hashId
         self.userEmail = _userEmail
         self.initTime = _initTime
@@ -105,7 +106,7 @@ class Transaction(db.Model):
         self.cryptoType = _cryptoType;
         self.exchangedQuantity = _exchangedQuantity
         self.gas = _gas
-
+        self.transactionType = _transactionType
 
 class TransactionSchema(Schema):
     hashId = fields.Str()
@@ -116,3 +117,4 @@ class TransactionSchema(Schema):
     cryptoType = fields.Str()
     exchangedQuantity = fields.Float()
     gas = fields.Float()
+    transactionType = fields.Str()

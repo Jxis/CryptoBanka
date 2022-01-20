@@ -108,6 +108,9 @@ def verify():
 
 @app.route('/buyKripto', methods=['GET', 'POST'])
 def kupi():
+    now = datetime.now()
+    current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+
     content = flask.request.json
     _nazivKripta = content['nazivKripta']
     _kolikoKripta = content['kolikoKripta']
@@ -115,18 +118,28 @@ def kupi():
     _valutaPlacanja = content['valutaPlacanja']
     _mejl = content['mejl']
 
+    randNum = random.randint(0,1000)
+    rawId = _mejl + current_time + _ulozeno + str(randNum)
+    hashId = sha3.keccak_256(rawId.encode('utf-8')).hexdigest()
+
+    AddTransactionToDB(hashId, _mejl, current_time, 'In progerss', 'cryptobanka@crypto.com', _valutaPlacanja, _ulozeno, 0, 'buyed')
+
     if UserHaveWallet(_mejl):
         userWallet = GetUserWallet(_mejl)
         provera = ProveraStanjaNovca(userWallet, _valutaPlacanja, _ulozeno)
         _code = provera['code']
         if _code == 200:
             PayFromWallet(_mejl, _valutaPlacanja , _ulozeno)
+
+            #ako cemo cekati neko vreme
+            ChangeTransactionStatus(hashId, 'Approved')
             addKriptoToWallet(_mejl, _nazivKripta, _kolikoKripta)
             retVal = {'message' : 'Kripto successfully added to wallet'}, provera['code']    
         else:
             retVal = {'message' : provera['message']}, provera['code']    
 
     else:
+
         retVal = {'message' : 'User does not have wallet.'}, 400    
     
     return retVal
@@ -251,7 +264,7 @@ def transaction():
     rawId = _emailSender + _emailReciver + _ulozeno + str(randNum)
     hashId = sha3.keccak_256(rawId.encode('utf-8')).hexdigest()
 
-    AddTransactionToDB(hashId, _emailSender, current_time, 'In progerss', _emailReciver, _valuta, _ulozeno, float(_ulozeno)*0.05)
+    AddTransactionToDB(hashId, _emailSender, current_time, 'In progerss', _emailReciver, _valuta, _ulozeno, float(_ulozeno)*0.05, 'transacted')
 
     if userExists(_emailReciver):
         if UserHaveWallet(_emailReciver):
