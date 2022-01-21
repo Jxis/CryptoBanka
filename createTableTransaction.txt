@@ -1,0 +1,10 @@
+create table transaction(
+hashId varchar(255),
+userEmail varchar(255),
+initTime datetime,
+status varchar(255),
+targetEmail varchar(255),
+cryptoType varchar(255),
+exchangedQuantity decimal(38,10),
+gas decimal(38,10),
+transactionType varchar(255));
