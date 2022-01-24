@@ -40,7 +40,7 @@ session.headers.update(headers)
 ##########################################################
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def home():
     response = session.get(url, params=parameters)
     user = getattr(session, "user")
@@ -279,11 +279,20 @@ def kupi():
     response = (req.json())
     _message = response['message']
     _code = req.status_code
-
     if _code == 200:
-        return redirect(url_for("home"))
+        response = session.get(url, params=parameters)
+        user = getattr(session, "user")
+        return render_template("home.html",
+                                response=json.loads(response.text)['data'],
+                                user=user,
+                                message = _message)
     else:
-        return render_template("verify.html", message=_message)
+        response = session.get(url, params=parameters)
+        user = getattr(session, "user")
+        return render_template("home.html",
+                                response=json.loads(response.text)['data'],
+                                user=user,
+                                message = _message)
 
 
 @app.route('/editUser', methods=['GET', 'POST'])
