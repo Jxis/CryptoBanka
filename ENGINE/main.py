@@ -502,7 +502,8 @@ def WaitForApproval(q, _emailSender, _valuta, iznosFloat, zaPlacanje):
             c5.execute(''' UPDATE wallet SET Polkadot = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
     c5.close()
     mySQL.commit()
-    sleep(15)
+    #5min = 300sek
+    sleep(300)
     print("DONE")
     q.put("DONE")
 
