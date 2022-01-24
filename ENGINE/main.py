@@ -1,4 +1,6 @@
-from ast import Return
+from ast import Return, arg
+from email.message import EmailMessage
+from multiprocessing.connection import wait
 from random import Random, randint, random
 import re
 import string
@@ -12,6 +14,11 @@ import random
 import hashlib, binascii
 import sha3
 from sha3 import keccak_256
+import multiprocessing
+from multiprocessing import Process, Lock, Queue
+import threading 
+from threading import Thread
+import mysql.connector
 
 app = Flask(__name__)
 
@@ -122,7 +129,7 @@ def kupi():
     rawId = _mejl + current_time + _ulozeno + str(randNum)
     hashId = sha3.keccak_256(rawId.encode('utf-8')).hexdigest()
 
-    AddTransactionToDB(hashId, _mejl, current_time, 'In progerss', 'cryptobanka@crypto.com', _valutaPlacanja, _ulozeno, 0, 'buyed')
+    AddTransactionToDB(hashId, _mejl, current_time, 'In progress', 'cryptobanka@crypto.com', _valutaPlacanja, _ulozeno, 0, 'buyed')
 
     if UserHaveWallet(_mejl):
         userWallet = GetUserWallet(_mejl)
@@ -264,7 +271,7 @@ def transaction():
     rawId = _emailSender + _emailReciver + _ulozeno + str(randNum)
     hashId = sha3.keccak_256(rawId.encode('utf-8')).hexdigest()
 
-    AddTransactionToDB(hashId, _emailSender, current_time, 'In progerss', _emailReciver, _valuta, _ulozeno, float(_ulozeno)*0.05, 'transacted')
+    AddTransactionToDB(hashId, _emailSender, current_time, 'In progress', _emailReciver, _valuta, _ulozeno, float(_ulozeno)*0.05, 'transacted')
 
     if userExists(_emailReciver):
         if UserHaveWallet(_emailReciver):
@@ -273,27 +280,50 @@ def transaction():
                 provera = ProveraStanjaNovca(userWallet, _valuta, zaSkidanje)
                 code = provera['code']
                 if code == 200:
-                    PayFromWallet(_emailSender, _valuta , _ulozeno)
-
-                    #sleep 5min u niti
-                    ChangeTransactionStatus(hashId, 'Approved')
-                    addKriptoToWallet(_emailReciver, _valuta, _ulozeno)
+                    t = Process(target=WaitForApproval, args=[hashId, _emailReciver, _emailSender, _valuta , _ulozeno])
+                    t.start()
                     
                     retVal = {'message' : 'Transaction from user: {} to user: {} is SUCCESSFUL'.format(_emailSender, _emailReciver)}, 200
+                    return retVal
                 else:
-                    ChangeTransactionStatus(hashId, "Denied")
                     retVal = {'message' : 'User with {} mail does not have enough {} in wallet.'.format(_emailSender, _valuta)}, 400
             else:
-                ChangeTransactionStatus(hashId, "Denied")
                 retVal = {'message' : 'User with {} mail does not have wallet.'.format(_emailSender)}, 400
         else:
-            ChangeTransactionStatus(hashId, "Denied")
             retVal = {'message' : 'User with {} mail does not have wallet.'.format(_emailReciver)}, 400
     else:
-        ChangeTransactionStatus(hashId, "Denied")
         retVal = {'message' : 'User with {} mail does not exists.'.format(_emailReciver)}, 400
 
+    ChangeTransactionStatus(hashId, "Denied")
     return retVal
+
+def TransactionThread(hashId, _emailReciver, _emailSender, _valuta , _ulozeno):
+    PayFromWallet(_emailSender, _valuta , _ulozeno)
+
+    #kreirati thread koji poziva nit
+    #u threadu su sve funkcije ka bazi
+    #ta nit ima sleep 
+    #videti gde treba nova konekcija ka bazi
+
+    p = Process(target=WaitForApproval, args=[hashId, _emailReciver, _valuta, _ulozeno])
+    p.start()
+    p.join()
+
+def WaitForApproval(hashId, _emailReciver, _emailSender, _valuta , _ulozeno):
+    mySQL = mysql.connector.connect(host = "localhost", user="root", password="baza", db="cryptoBank")
+    cursor = mySQL.cursor()
+
+    cursor.execute(''' SELECT name FROM user WHERE email = %s ''', (_emailSender,))
+    response = cursor.fetchone()
+    cursor.close()
+    print(response)
+
+    #PayFromWallet(_emailSender, _valuta , _ulozeno)
+    sleep(15)
+    print(response + "ponovo")
+
+    #ChangeTransactionStatus(hashId, 'Approved')
+    #addKriptoToWallet(_emailReciver, _valuta, _ulozeno)
 
 def ProveraStanjaNovca(userWallet,_valutaPlacanja, _ulozeno):
     match _valutaPlacanja:
