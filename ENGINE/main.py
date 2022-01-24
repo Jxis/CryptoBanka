@@ -6,6 +6,7 @@ import re
 import string
 from time import sleep
 from tkinter.filedialog import SaveFileDialog
+from unicodedata import decimal
 from xmlrpc.client import DateTime
 from flask import Flask
 from requests.api import get
@@ -313,17 +314,42 @@ def WaitForApproval(hashId, _emailReciver, _emailSender, _valuta , _ulozeno):
     mySQL = mysql.connector.connect(host = "localhost", user="root", password="baza", db="cryptoBank")
     cursor = mySQL.cursor()
 
-    cursor.execute(''' SELECT name FROM user WHERE email = %s ''', (_emailSender,))
-    response = cursor.fetchone()
-    cursor.close()
-    print(response)
-
     #PayFromWallet(_emailSender, _valuta , _ulozeno)
-    sleep(15)
-    print(response + "ponovo")
+    #prebaciti u funkciju sve i dodati switch case po valuti
+    cursor.execute(''' SELECT Tether FROM wallet WHERE userEmail = %s ''', (_emailSender,))
+    iznosDecimal = cursor.fetchone()
+    iznosFloat = float('.'.join(str(ele) for ele in iznosDecimal))
+    print("prvo stanje na racunu = " + str(iznosFloat))
+    noviIznos = iznosFloat - float(_ulozeno)
+    cursor.execute(''' UPDATE wallet SET Tether = %s WHERE userEmail = %s ''', (noviIznos, _emailSender,))
+    print("novi iznos = " + str(noviIznos))
+    print("Paid from wallet")
+    print("Now we wait...")
+
+    mySQL.commit()
+
+    sleep(10)
 
     #ChangeTransactionStatus(hashId, 'Approved')
+    cursor.execute(''' UPDATE transaction SET status = %s WHERE hashId = %s ''', ("Approved", hashId,))
+
     #addKriptoToWallet(_emailReciver, _valuta, _ulozeno)
+    cursor.execute(''' SELECT Tether FROM wallet WHERE userEmail = %s ''', (_emailReciver,))
+    iznos = cursor.fetchone()
+    iznosFloat = float('.'.join(str(ele) for ele in iznos))
+    print("stanje kod primaoca = " + str(iznosFloat))
+    noviIznos = iznosFloat + float(_ulozeno)
+    cursor.execute(''' UPDATE wallet SET Tether = %s WHERE userEmail = %s ''', (noviIznos, _emailReciver,))
+
+    cursor.execute(''' SELECT Tether FROM wallet WHERE userEmail = %s ''', (_emailReciver,))
+    iznos = cursor.fetchone()
+    iznosFloat = float('.'.join(str(ele) for ele in iznos))
+    print("novo stanje kod primaoca = " + str(iznosFloat))
+
+    mySQL.commit()
+
+    cursor.close()
+    print("DONE")
 
 def ProveraStanjaNovca(userWallet,_valutaPlacanja, _ulozeno):
     match _valutaPlacanja:
