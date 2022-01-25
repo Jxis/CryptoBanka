@@ -362,6 +362,8 @@ def wallet():
     response = json.loads(jsonify(req.text).json)
 
     _code = req.status_code
+    if(_code == 401):
+        return render_template("verify.html", err = "User not verified.")
     if (_code == 200):
         setattr(session, "wallet_data", response)
         return render_template("wallet.html",

@@ -91,6 +91,11 @@ def verify():
     _amount = content['amount']
     _email = content['email']
 
+    _today = datetime.now()
+    tt = _today.strftime("%Y-%m-%d")
+    t = datetime.strptime(tt, "%Y-%m-%d")
+    time = datetime.strptime(_expDate, "%Y-%m-%d")
+
     if len(_cardNum) != 16:
         retVal = {'message' : 'Wrong card number.'}, 400    
         return retVal
@@ -100,9 +105,9 @@ def verify():
     elif int(_amount) < 1:
         retVal = {'message' : 'You need to have more than 1$ on your bank account.'}, 400    
         return retVal
-    #elif date(_expDate, '%m/%d/%y') <= datetime.now:
-    #    retVal = {'message' : 'Your bank card expired.'}, 400    
-    #    return retVal
+    elif time <= t:
+        retVal = {'message' : 'Your bank card expired.'}, 400  
+        return retVal
 
     newAmount = int(_amount) - 1
 
@@ -235,6 +240,8 @@ def wallet():
     
     if not userExists(email):
         return {'message': 'User does not exist.'}
+    if not UserHaveWallet(email):
+        return {'message': 'User is not verified.'}, 401
     wallet = GetUserWallet(email)
     wallet_data = {
         'tether': wallet.tether,
