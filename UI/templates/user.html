@@ -4,67 +4,95 @@
 
 <br>{{message}}<br>
 
-<br><br>
 <h1 align="center">Informacije o korisniku:</h1><br>
-<h4>{{ user_data['name']}} {{ user_data['lastName'] }}</h4><br>
-<p>Email: {{user_data['email']}}</p>
-<p>Adresa: {{user_data['address']}}</p>
-<p>Grad: {{ user_data['city'] }}</p>
-<p>Drzava: {{ user_data['country'] }}</p>
-<p>Broj telefona: {{ user_data['phoneNumber'] }}</p><br>
-
-<form method="GET" action="/editUser" class="form" style="margin-left:50px; width: 150px;">
-    <input type="submit" value="Edit profile" >
-</form>
-
-{% if boolean == True %}
-<div style="margin-top: -310px; margin-left: 600px;" >
-    <h5>Korisnik je verifikovan.</h5><br>
-    <table class="table table-striped" style="width: 80%;" width:50%> 
-        <tr>
-            <td>Broj platne kartice </td>
-            <td>{{ user_data['cardNumber'] }}</td>
-        </tr>
-        <tr>
-            <td>Datum isteka kartice</td>
-            <td>{{ user_data['cardExpDate'] }}</td>
-        </tr>
-        <tr>
-            <td>Stanje na racunu</td>
-            <td>{{ user_data['amount'] }} $</td>
-        </tr>
-    </table>
-    <br>
-
-    <form align=center; method="POST" action="/addMoney" class="form" >
-        <input type="number" placeholder="Add amount: 0$"  id='addedMoney' name='addedMoney' > <br><br>
-        <input type="submit" value="Add money" >
-    </form>
-    <br><br>
-    <form align=center; method="POST" action="/convertUSDToTether" class="form" >
-        <input type="number" placeholder="Amount to convert: 0$"  id='usdToTetherAmount' name='usdToTetherAmount' > <br><br>
-        <input type="submit" value="Convert to tether" >
-    </form>
-
+<div class="row">
+    <div class="col-md-6 card p-2">
+        <h5>{{ user_data['name']}} {{ user_data['lastName'] }}</h5>
+        <table class="table table-striped">
+            <tbody>
+                <tr>
+                    <td>Email</td>
+                    <td>{{user_data['email']}}</td>
+                </tr>
+                <tr>
+                    <td>Adresa</td>
+                    <td>{{user_data['address']}}</td>
+                </tr>
+                <tr>
+                    <td>Grad</td>
+                    <td>{{user_data['city']}}</td>
+                </tr>
+                <tr>
+                    <td>Drzava</td>
+                    <td>{{user_data['country']}}</td>
+                </tr>
+                <tr>
+                    <td>Broj telefona</td>
+                    <td>{{user_data['phoneNumber']}}</td>
+                </tr>
+            </tbody>
+        </table>
+ 
+        <form  method="GET" action="/editUser">
+            <input class="btn btn-dark" type="submit" value="Edit profile" >
+        </form>
+    </div>
+    <div class="col-md-6 card p-2">
+        {% if boolean == True %}
+        <div>
+            <h5 class="mb-2">Korisnik je verifikovan.</h5>
+            <table class="table table-striped">
+                <tbody>
+                    <tr>
+                        <td scope="row">Broj platne kartice </td>
+                        <td>{{ user_data['cardNumber'] }}</td>
+                    </tr>
+                    <tr>
+                        <td scope="row">Datum isteka kartice</td>
+                        <td>{{ user_data['cardExpDate'] }}</td>
+                    </tr>
+                    <tr>
+                        <td scope="row">Stanje na racunu</td>
+                        <td>{{ user_data['amount'] }} $</td>
+                    </tr>
+                </tbody>
+            </table>
+            <br>
+        
+            <form method="POST" action="/addMoney" class="form-group flex-column">
+                <input type="number" placeholder="Add amount: 0$"  id='addedMoney' name='addedMoney' >
+                <input class="btn btn-dark" type="submit" value="Add money" >
+            </form>
+            
+            <form  method="POST" action="/convertUSDToTether" class="form-group flex-column">
+                <input type="number" placeholder="Amount to convert: 0$"  id='usdToTetherAmount' name='usdToTetherAmount' >
+                <input class="btn btn-dark" type="submit" value="Convert to tether" >
+            </form>
+        
+        </div>
+        {% else %}
+        <div>
+            <h5>Verifikuj korisnika:</h5><br>
+            <form method="POST" action="/verify" class="form" style="width: 60%;">
+                <label>Ime i prezime:</label>
+                <input id="name" name="name" class="form-control" type="text" placeholder="Ime i prezime" >
+                <label>Broj kartice:</label>
+                <input id="cardNum" name="cardNum" class="form-control" type="text" placeholder="4242 4242 4242 4242">
+                <label>Datum isteka: </label>
+                <input id="expDate" name="expDate" class="form-control" type="date" placeholder="mm/yy" pattern="\d{1,2}/\d{1,2}">
+                <label>Sigurnosni kod: </label>
+                <input id="cardCode" name="cardCode" class="form-control" type="text" placeholder="Password">
+                <label>Iznos na racunu ($): </label>
+                <input id="amount" name="amount" class="form-control" type="number" placeholder="100 $"> </br>
+                <input type="submit" value="Verify">
+            </form>
+        </div>
+        
+        {% endif %}
+    </div>
 </div>
-{% else %}
-<div style="margin-top: -310px; margin-left: 600px;">
-    <h5>Verifikuj korisnika:</h5><br>
-    <form method="POST" action="/verify" class="form" style="width: 60%;">
-        <label>Ime i prezime:</label>
-        <input id="name" name="name" class="form-control" type="text" placeholder="Ime i prezime" >
-        <label>Broj kartice:</label>
-        <input id="cardNum" name="cardNum" class="form-control" type="text" placeholder="4242 4242 4242 4242">
-        <label>Datum isteka: </label>
-        <input id="expDate" name="expDate" class="form-control" type="date" placeholder="mm/yy" pattern="\d{1,2}/\d{1,2}">
-        <label>Sigurnosni kod: </label>
-        <input id="cardCode" name="cardCode" class="form-control" type="text" placeholder="Password">
-        <label>Iznos na racunu ($): </label>
-        <input id="amount" name="amount" class="form-control" type="number" placeholder="100 $"> </br>
-        <input type="submit" value="Verify">
-    </form>
-</div>
 
-{% endif %}
+
+
 
 {% endblock %}

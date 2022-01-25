@@ -3,53 +3,52 @@
 {% block content %}
 
 
-<form method="POST">
-    <h3 align="center"> Sign up</h3>
+<form class="card p-5" method="POST">
+    <h3  class="card-title"> Sign up</h3>
 
-    <p><b>{{message}}</b></p>
+    <label for="firstName" class="form-group">
+        First Name
+        <input type="text" class="form-control mt-2" id="firstName" name="firstName" placeholder="Enter First Name">
+    </label>
 
-    <div class="form-group">
-        <label for="firstName">First Name</label>
-        <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Enter First Name">
-    </div>
+    <label for="lastName" class="form-group">
+        Last Name
+        <input type="text" class="form-control mt-2" id="lastName" name="lastName" placeholder="Enter Last Name">
+    </label>
 
-    <div class="form-group">
-        <label for="lastName">Last Name</label>
-        <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Enter Last Name">
-    </div>
+    <label for="address" class="form-group">
+        Home Address
+        <input type="text" class="form-control mt-2" id="address" name="address" placeholder="Enter Home Address">
+    </label>
 
-    <div class="form-group">
-        <label for="address">Home Address</label>
-        <input type="text" class="form-control" id="address" name="address" placeholder="Enter Home Address">
-    </div>
+    <label for="city" class="form-group">
+        City
+        <input type="text" class="form-control mt-2" id="city" name="city" placeholder="Enter City">
+    </label>
 
-    <div class="form-group">
-        <label for="city">City</label>
-        <input type="text" class="form-control" id="city" name="city" placeholder="Enter City">
-    </div>
-
-    <div class="form-group">
-        <label for="country">Country</label>
-        <input type="text" class="form-control" id="country" name="country" placeholder="Enter country">
-    </div>
+    <label for="country" class="form-group">
+        Country
+        <input type="text" class="form-control mt-2" id="country" name="country" placeholder="Enter country">
+    </label>
 
     <!-- dodaj za broj telefona -->
-    <div class="form-group">
-        <label for="number">Phone Number</label>
-        <input type="tel" class="form-control" id="number" name="number" placeholder="Enter phone number">
-    </div>
+    <label for="number" class="form-group">
+        Phone Number
+        <input type="tel" class="form-control mt-2" id="number" name="number" placeholder="Enter phone number">
+    </label>
 
-    <div class="form-group">
-        <label for="email">Email Address</label>
-        <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email">
-    </div>
+    <label for="email" class="form-group">
+        Email Address
+        <input type="email" class="form-control mt-2" id="email" name="email" placeholder="Enter Email">
+    </label>
 
-    <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" class="form-control" id="password" name="password" placeholder="Enter Password">
-    </div>
+    <label for="password" class="form-group">
+        Password
+        <input type="password" class="form-control mt-2" id="password" name="password" placeholder="Enter Password">
+    </label>
+    <p class="text-danger">{{message}}</p>
     <br/>
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="submit" class="btn btn-dark">Submit</button>
 </form>
 
 {% endblock %}
