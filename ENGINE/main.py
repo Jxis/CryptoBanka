@@ -274,30 +274,237 @@ def transaction():
     _ulozeno = content["ulozeno"]
     _valuta = content["valuta"]    
 
+    if(_emailSender is '' or _emailReciever is '' or _ulozeno is ''):
+        retVal = {'message' : 'All fields must have values!'}, 400
+        return retVal
+
     randNum = random.randint(0,1000)
     rawId = _emailSender + _emailReciever + _ulozeno + str(randNum)
     hashId = sha3.keccak_256(rawId.encode('utf-8')).hexdigest()
 
     #nit koji proverava validnost transakcije, skida novac i poziva proces koji onda ceka 5min i upisuje nove podatke u bazu
-    t = Thread(target=TransactionThread, args=[current_time, hashId, _emailSender, _emailReciever, _valuta , _ulozeno])
-    t.start()
+    p = Process(target=TransactionProcess, args=[current_time, hashId, _emailSender, _emailReciever, _valuta , _ulozeno])
+    p.start()
     
     retVal = {'message' : 'Transaction from user: {} to user: {} is IN PROGRESS'.format(_emailSender, _emailReciever)}, 200
     return retVal
 
-def TransactionThread(current_time, hashId, _emailSender, _emailReciever, _valuta, _ulozeno):
+def TransactionProcess(current_time, hashId, _emailSender, _emailReciever, _valuta, _ulozeno):
     #mora da se kreira nova konekcija sa bazom jer svaki proces i nit zauzima novi memorijski prostor za sebe 
     mySQL = mysql.connector.connect(host = "localhost", user="root", password="baza", db="cryptoBank")
-
-    gas = 0.05 * float(_ulozeno)
-    zaSkidanje = float(_ulozeno) + gas
     
+    gas = 0.05 * float(_ulozeno)
     #AddTransactionToDB(hashId, _emailSender, current_time, 'In progress', _emailReciever, _valuta, _ulozeno, float(_ulozeno)*0.05, 'transacted')
     c1 = mySQL.cursor()
     c1.execute(''' INSERT INTO transaction (hashId, userEmail, initTime, status, targetEmail, cryptoType, exchangedQuantity, gas, transactionType) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) ''',(hashId, _emailSender, current_time, "In progress", _emailReciever, _valuta, _ulozeno, gas, 'transacted'))
     mySQL.commit()
     c1.close()
 
+    q = Queue()
+    t = Thread(target=WaitForApprovalThread, args=[q, _emailSender, _emailReciever, _valuta, float(_ulozeno)])
+    t.start()           
+    #cekamo da prodje 5min        
+    result = q.get()
+    if(result is true):
+        #ok
+        c6 = mySQL.cursor()
+        #ChangeTransactionStatus(hashId, 'Approved')
+        c6.execute(''' UPDATE transaction SET status = %s WHERE hashId = %s ''', ("Approved", hashId,))
+        c6.close()
+        mySQL.commit()
+
+        c7 = mySQL.cursor()
+        #addKriptoToWallet(_emailReciever, _valuta, _ulozeno)
+        match _valuta:
+            case 'Tether':
+                c7.execute(''' SELECT Tether FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
+            case 'Bitcoin':
+                c7.execute(''' SELECT Bitcoin FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
+            case 'Litecoin':
+                c7.execute(''' SELECT Litecoin FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
+            case 'XRP':
+                c7.execute(''' SELECT XRP FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
+            case 'Dogecoin':
+                c7.execute(''' SELECT Dogecoin FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
+            case 'Stellar':
+                c7.execute(''' SELECT Stellar FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
+            case 'Ethereum':
+                c7.execute(''' SELECT Ethereum FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
+            case 'TRON':
+                c7.execute(''' SELECT TRON FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
+            case 'Chainlink':
+                c7.execute(''' SELECT Chainlink FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
+            case 'Cardano':
+                c7.execute(''' SELECT Cardano FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
+            case 'Cosmos':
+                c7.execute(''' SELECT Cosmos FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
+            case 'Polygon':
+                c7.execute(''' SELECT Polygon FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
+            case 'Solana':
+                c7.execute(''' SELECT Solana FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
+            case 'Avalanche':
+                c7.execute(''' SELECT Avalanche FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
+            case 'Polkadot':
+                c7.execute(''' SELECT Polkadot FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
+        iznos = c7.fetchone()
+        c7.close()
+        iznosFloat = float('.'.join(str(ele) for ele in iznos))
+        noviIznos = iznosFloat + float(_ulozeno)
+
+        c8 = mySQL.cursor()
+        match _valuta:
+            case 'Tether':
+                c8.execute(''' UPDATE wallet SET Tether = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
+            case 'Bitcoin':
+                c8.execute(''' UPDATE wallet SET Bitcoin = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
+            case 'Litecoin':
+                c8.execute(''' UPDATE wallet SET Litecoin = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
+            case 'XRP':
+                c8.execute(''' UPDATE wallet SET XRP = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
+            case 'Dogecoin':
+                c8.execute(''' UPDATE wallet SET Dogecoin = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
+            case 'Stellar':
+                c8.execute(''' UPDATE wallet SET Stellar = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
+            case 'Ethereum':
+                c8.execute(''' UPDATE wallet SET Ethereum = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
+            case 'TRON':
+                c8.execute(''' UPDATE wallet SET TRON = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
+            case 'Chainlink':
+                c8.execute(''' UPDATE wallet SET Chainlink = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
+            case 'Cardano':
+                c8.execute(''' UPDATE wallet SET Cardano = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
+            case 'Cosmos':
+                c8.execute(''' UPDATE wallet SET Cosmos = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
+            case 'Polygon':
+                c8.execute(''' UPDATE wallet SET Polygon = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
+            case 'Solana':
+                c8.execute(''' UPDATE wallet SET Solana = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
+            case 'Avalanche':
+                c8.execute(''' UPDATE wallet SET Avalanche = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
+            case 'Polkadot':
+                c8.execute(''' UPDATE wallet SET Polkadot = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
+        c8.close()
+        mySQL.commit()       
+    else:
+        #not ok
+        #ChangeTransactionStatus(hashId, "Denied")
+        c6 = mySQL.cursor()
+        c6.execute(''' UPDATE transaction SET status = %s WHERE hashId = %s ''', ("Denied", hashId,))
+        c6.close()
+        mySQL.commit()
+        #vrati mu pare na racun ako je odbijeno
+        c5 = mySQL.cursor()
+        match _valuta:
+            case 'Tether':
+                c5.execute(''' SELECT Tether FROM wallet WHERE userEmail = %s ''', (_emailSender,))
+                iznosDec = c5.fetchone()
+                iznosFloat = float('.'.join(str(ele) for ele in iznosDec))
+            case 'Bitcoin':
+                c5.execute(''' SELECT Bitcoin FROM wallet WHERE userEmail = %s ''', (_emailSender,))
+                iznosDec = c5.fetchone()
+                iznosFloat = float('.'.join(str(ele) for ele in iznosDec))
+            case 'Litecoin':
+                c5.execute(''' SELECT Litecoin FROM wallet WHERE userEmail = %s ''', (_emailSender,))
+                iznosDec = c5.fetchone()
+                iznosFloat = float('.'.join(str(ele) for ele in iznosDec))
+            case 'XRP':
+                c5.execute(''' SELECT XRP FROM wallet WHERE userEmail = %s ''', (_emailSender,))
+                iznosDec = c5.fetchone()
+                iznosFloat = float('.'.join(str(ele) for ele in iznosDec))
+            case 'Dogecoin':
+                c5.execute(''' SELECT Dogecoin FROM wallet WHERE userEmail = %s ''', (_emailSender,))
+                iznosDec = c5.fetchone()
+                iznosFloat = float('.'.join(str(ele) for ele in iznosDec))
+            case 'Stellar':
+                c5.execute(''' SELECT Stellar FROM wallet WHERE userEmail = %s ''', (_emailSender,))
+                iznosDec = c5.fetchone()
+                iznosFloat = float('.'.join(str(ele) for ele in iznosDec))
+            case 'Ethereum':
+                c5.execute(''' SELECT Ethereum FROM wallet WHERE userEmail = %s ''', (_emailSender,))
+                iznosDec = c5.fetchone()
+                iznosFloat = float('.'.join(str(ele) for ele in iznosDec))
+            case 'TRON':
+                c5.execute(''' SELECT TRON FROM wallet WHERE userEmail = %s ''', (_emailSender,))
+                iznosDec = c5.fetchone()
+                iznosFloat = float('.'.join(str(ele) for ele in iznosDec))
+            case 'Chainlink':
+                c5.execute(''' SELECT Chainlink FROM wallet WHERE userEmail = %s ''', (_emailSender,))
+                iznosDec = c5.fetchone()
+                iznosFloat = float('.'.join(str(ele) for ele in iznosDec))
+            case 'Cardano':
+                c5.execute(''' SELECT Cardano FROM wallet WHERE userEmail = %s ''', (_emailSender,))
+                iznosDec = c5.fetchone()
+                iznosFloat = float('.'.join(str(ele) for ele in iznosDec))
+            case 'Cosmos':
+                c5.execute(''' SELECT Cosmos FROM wallet WHERE userEmail = %s ''', (_emailSender,))
+                iznosDec = c5.fetchone()
+                iznosFloat = float('.'.join(str(ele) for ele in iznosDec))
+            case 'Polygon':
+                c5.execute(''' SELECT Polygon FROM wallet WHERE userEmail = %s ''', (_emailSender,))
+                iznosDec = c5.fetchone()
+                iznosFloat = float('.'.join(str(ele) for ele in iznosDec))
+            case 'Solana':
+                c5.execute(''' SELECT Solana FROM wallet WHERE userEmail = %s ''', (_emailSender,))
+                iznosDec = c5.fetchone()
+                iznosFloat = float('.'.join(str(ele) for ele in iznosDec))
+            case 'Avalanche':
+                c5.execute(''' SELECT Avalanche FROM wallet WHERE userEmail = %s ''', (_emailSender,))
+                iznosDec = c5.fetchone()
+                iznosFloat = float('.'.join(str(ele) for ele in iznosDec))
+            case 'Polkadot':
+                c5.execute(''' SELECT Polkadot FROM wallet WHERE userEmail = %s ''', (_emailSender,))
+                iznosDec = c5.fetchone()
+                iznosFloat = float('.'.join(str(ele) for ele in iznosDec))
+        c5.close()
+
+        c9 = mySQL.cursor()
+        zaPlacanje = 1.05 * _ulozeno
+        preostalo = iznosFloat + zaPlacanje
+        #PayFromWallet(_emailSender, _valuta , _ulozeno)
+        match _valuta:
+            case 'Tether':
+                c9.execute(''' UPDATE wallet SET Tether = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+            case 'Bitcoin':
+                c9.execute(''' UPDATE wallet SET Bitcoin = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+            case 'Litecoin':
+                c9.execute(''' UPDATE wallet SET Litecoin = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+            case 'XRP':
+                c9.execute(''' UPDATE wallet SET XRP = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+            case 'Dogecoin':
+                c9.execute(''' UPDATE wallet SET Dogecoin = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+            case 'Stellar':
+                c9.execute(''' UPDATE wallet SET Stellar = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+            case 'Ethereum':
+                c9.execute(''' UPDATE wallet SET Ethereum = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+            case 'TRON':
+                c9.execute(''' UPDATE wallet SET TRON = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+            case 'Chainlink':
+                c9.execute(''' UPDATE wallet SET Chainlink = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+            case 'Cardano':
+                c9.execute(''' UPDATE wallet SET Cardano = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+            case 'Cosmos':
+                c9.execute(''' UPDATE wallet SET Cosmos = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+            case 'Polygon':
+                c9.execute(''' UPDATE wallet SET Polygon = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+            case 'Solana':
+                c9.execute(''' UPDATE wallet SET Solana = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+            case 'Avalanche':
+                c9.execute(''' UPDATE wallet SET Avalanche = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+            case 'Polkadot':
+                c9.execute(''' UPDATE wallet SET Polkadot = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+        c9.close()
+        mySQL.commit()
+
+
+#placa iz novcanika i ceka 5min
+def WaitForApprovalThread(q, _emailSender, _emailReciever, _valuta, _ulozeno):
+    if(_emailReciever == _emailSender):
+        sleep(30)
+        q.put(false)
+        return 
+
+    mySQL = mysql.connector.connect(host = "localhost", user="root", password="baza", db="cryptoBank")
+    
     c2 = mySQL.cursor()
     c2.execute(''' SELECT name FROM user WHERE email = %s ''', (_emailReciever,))
     name = c2.fetchone()
@@ -307,12 +514,12 @@ def TransactionThread(current_time, hashId, _emailSender, _emailReciever, _valut
         c3.execute(''' SELECT cardNumber FROM user WHERE email = %s ''', (_emailReciever,))
         cardNumber = c3.fetchone()
         c3.close()
-        #if User1HasWallet(_emailReciever):
+        #if UserHasWallet(_emailReciever):
         if(cardNumber != '0'):
             c4 = mySQL.cursor()
             c4.execute(''' SELECT cardNumber FROM user WHERE email = %s ''', (_emailSender,))
             cardNumber = c4.fetchone()
-            #if User2HasWallet(_emailSender):
+            #if UserHasWallet(_emailSender):
             if(cardNumber != '0'):
                 #proveriti da li ima dovoljno novca da mu se skine ta valuta
                 c5 = mySQL.cursor()
@@ -378,142 +585,53 @@ def TransactionThread(current_time, hashId, _emailSender, _emailReciever, _valut
                         iznosDec = c5.fetchone()
                         iznosFloat = float('.'.join(str(ele) for ele in iznosDec))
                 c5.close()
+                zaSkidanje = 1.05 * _ulozeno
                 if(zaSkidanje <= iznosFloat):
-                    #proces koji ceka 5minuta 
-                    q = Queue()
-                    p = Process(target=WaitForApproval, args=[q, _emailSender, _valuta , iznosFloat, zaSkidanje])
-                    p.start()           
-                    #cekamo da prodje 5min        
-                    result = q.get()
-                    if(result == 'DONE'):
-                        c6 = mySQL.cursor()
-                        #ChangeTransactionStatus(hashId, 'Approved')
-                        c6.execute(''' UPDATE transaction SET status = %s WHERE hashId = %s ''', ("Approved", hashId,))
-                        c6.close()
-                        c7 = mySQL.cursor()
-                        #addKriptoToWallet(_emailReciever, _valuta, _ulozeno)
-                        match _valuta:
-                            case 'Tether':
-                                c7.execute(''' SELECT Tether FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
-                            case 'Bitcoin':
-                                c7.execute(''' SELECT Bitcoin FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
-                            case 'Litecoin':
-                                c7.execute(''' SELECT Litecoin FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
-                            case 'XRP':
-                                c7.execute(''' SELECT XRP FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
-                            case 'Dogecoin':
-                                c7.execute(''' SELECT Dogecoin FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
-                            case 'Stellar':
-                                c7.execute(''' SELECT Stellar FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
-                            case 'Ethereum':
-                                c7.execute(''' SELECT Ethereum FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
-                            case 'TRON':
-                                c7.execute(''' SELECT TRON FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
-                            case 'Chainlink':
-                                c7.execute(''' SELECT Chainlink FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
-                            case 'Cardano':
-                                c7.execute(''' SELECT Cardano FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
-                            case 'Cosmos':
-                                c7.execute(''' SELECT Cosmos FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
-                            case 'Polygon':
-                                c7.execute(''' SELECT Polygon FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
-                            case 'Solana':
-                                c7.execute(''' SELECT Solana FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
-                            case 'Avalanche':
-                                c7.execute(''' SELECT Avalanche FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
-                            case 'Polkadot':
-                                c7.execute(''' SELECT Polkadot FROM wallet WHERE userEmail = %s ''', (_emailReciever,))
-                        iznos = c7.fetchone()
-                        c7.close()
-                        iznosFloat = float('.'.join(str(ele) for ele in iznos))
-                        noviIznos = iznosFloat + float(_ulozeno)
-
-                        c8 = mySQL.cursor()
-                        match _valuta:
-                            case 'Tether':
-                                c8.execute(''' UPDATE wallet SET Tether = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
-                            case 'Bitcoin':
-                                c8.execute(''' UPDATE wallet SET Bitcoin = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
-                            case 'Litecoin':
-                                c8.execute(''' UPDATE wallet SET Litecoin = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
-                            case 'XRP':
-                                c8.execute(''' UPDATE wallet SET XRP = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
-                            case 'Dogecoin':
-                                c8.execute(''' UPDATE wallet SET Dogecoin = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
-                            case 'Stellar':
-                                c8.execute(''' UPDATE wallet SET Stellar = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
-                            case 'Ethereum':
-                                c8.execute(''' UPDATE wallet SET Ethereum = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
-                            case 'TRON':
-                                c8.execute(''' UPDATE wallet SET TRON = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
-                            case 'Chainlink':
-                                c8.execute(''' UPDATE wallet SET Chainlink = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
-                            case 'Cardano':
-                                c8.execute(''' UPDATE wallet SET Cardano = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
-                            case 'Cosmos':
-                                c8.execute(''' UPDATE wallet SET Cosmos = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
-                            case 'Polygon':
-                                c8.execute(''' UPDATE wallet SET Polygon = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
-                            case 'Solana':
-                                c8.execute(''' UPDATE wallet SET Solana = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
-                            case 'Avalanche':
-                                c8.execute(''' UPDATE wallet SET Avalanche = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
-                            case 'Polkadot':
-                                c8.execute(''' UPDATE wallet SET Polkadot = %s WHERE userEmail = %s ''', (noviIznos, _emailReciever,))
-                        c8.close()
-                        mySQL.commit()
-                        return
-
-    #ChangeTransactionStatus(hashId, "Denied")
-    c6 = mySQL.cursor()
-    c6.execute(''' UPDATE transaction SET status = %s WHERE hashId = %s ''', ("Denied", hashId,))
-    c6.close()
-    c7 = mySQL.cursor()
-
-#placa iz novcanika i ceka 5min
-def WaitForApproval(q, _emailSender, _valuta, iznosFloat, zaPlacanje):
-    mySQL = mysql.connector.connect(host = "localhost", user="root", password="baza", db="cryptoBank")
-    c5 = mySQL.cursor()
-    preostalo = iznosFloat - zaPlacanje
-    #PayFromWallet(_emailSender, _valuta , _ulozeno)
-    match _valuta:
-        case 'Tether':
-            c5.execute(''' UPDATE wallet SET Tether = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
-        case 'Bitcoin':
-            c5.execute(''' UPDATE wallet SET Bitcoin = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
-        case 'Litecoin':
-            c5.execute(''' UPDATE wallet SET Litecoin = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
-        case 'XRP':
-            c5.execute(''' UPDATE wallet SET XRP = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
-        case 'Dogecoin':
-            c5.execute(''' UPDATE wallet SET Dogecoin = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
-        case 'Stellar':
-            c5.execute(''' UPDATE wallet SET Stellar = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
-        case 'Ethereum':
-            c5.execute(''' UPDATE wallet SET Ethereum = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
-        case 'TRON':
-            c5.execute(''' UPDATE wallet SET TRON = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
-        case 'Chainlink':
-            c5.execute(''' UPDATE wallet SET Chainlink = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
-        case 'Cardano':
-            c5.execute(''' UPDATE wallet SET Cardano = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
-        case 'Cosmos':
-            c5.execute(''' UPDATE wallet SET Cosmos = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
-        case 'Polygon':
-            c5.execute(''' UPDATE wallet SET Polygon = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
-        case 'Solana':
-            c5.execute(''' UPDATE wallet SET Solana = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
-        case 'Avalanche':
-            c5.execute(''' UPDATE wallet SET Avalanche = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
-        case 'Polkadot':
-            c5.execute(''' UPDATE wallet SET Polkadot = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
-    c5.close()
-    mySQL.commit()
-    #5min = 300sek
-    sleep(300)
-    print("DONE")
-    q.put("DONE")
-
+                    #sve ok
+                    sleep(30)
+                    c9 = mySQL.cursor()
+                    zaPlacanje = 1.05 * _ulozeno
+                    preostalo = iznosFloat - zaPlacanje
+                    #PayFromWallet(_emailSender, _valuta , _ulozeno)
+                    match _valuta:
+                        case 'Tether':
+                            c9.execute(''' UPDATE wallet SET Tether = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+                        case 'Bitcoin':
+                            c9.execute(''' UPDATE wallet SET Bitcoin = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+                        case 'Litecoin':
+                            c9.execute(''' UPDATE wallet SET Litecoin = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+                        case 'XRP':
+                            c9.execute(''' UPDATE wallet SET XRP = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+                        case 'Dogecoin':
+                            c9.execute(''' UPDATE wallet SET Dogecoin = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+                        case 'Stellar':
+                            c9.execute(''' UPDATE wallet SET Stellar = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+                        case 'Ethereum':
+                            c9.execute(''' UPDATE wallet SET Ethereum = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+                        case 'TRON':
+                            c9.execute(''' UPDATE wallet SET TRON = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+                        case 'Chainlink':
+                            c9.execute(''' UPDATE wallet SET Chainlink = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+                        case 'Cardano':
+                            c9.execute(''' UPDATE wallet SET Cardano = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+                        case 'Cosmos':
+                            c9.execute(''' UPDATE wallet SET Cosmos = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+                        case 'Polygon':
+                            c9.execute(''' UPDATE wallet SET Polygon = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+                        case 'Solana':
+                            c9.execute(''' UPDATE wallet SET Solana = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+                        case 'Avalanche':
+                            c9.execute(''' UPDATE wallet SET Avalanche = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+                        case 'Polkadot':
+                            c9.execute(''' UPDATE wallet SET Polkadot = %s WHERE userEmail = %s ''', (preostalo, _emailSender,))
+                    c9.close()
+                    mySQL.commit()
+                    q.put(true)
+                    return
+    sleep(30)
+    q.put(false)
+    return
+                        
 def ProveraStanjaNovca(userWallet,_valutaPlacanja, _ulozeno):
     match _valutaPlacanja:
         case 'Tether':
