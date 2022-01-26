@@ -113,6 +113,10 @@ def verify():
     _amount = content['amount']
     _email = content['email']
 
+    if _cardNum == "" or _name == "" or _expDate == "" or _cardCode == "" or _amount == "" or _email == "":
+        retVal = {'message' : 'All fields required.'}, 400    
+        return retVal
+
     _today = datetime.now()
     tt = _today.strftime("%Y-%m-%d")
     t = datetime.strptime(tt, "%Y-%m-%d")
@@ -872,4 +876,4 @@ def filterTransactions():
 if __name__ == "__main__":
     setattr(session, "sortTargetEmail", "False")
     setattr(session, "sortTime", "False")
-    app.run(port=5001)
+    app.run(port=5001, host="0.0.0.0")

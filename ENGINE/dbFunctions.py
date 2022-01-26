@@ -11,11 +11,9 @@ from models import user
 db=SQLAlchemy()
 ma=Marshmallow()
 
-#from config import db, ma  #mislim da nam ovo ni ne treba jer sam ja stavila sve ovde
-
 app = Flask(__name__)
 
-#ukoliko budemo pisali ciste sql upite
+
 mysql = MySQL()
 #app.config['MYSQL_DATABASE_USER'] = 'root'
 #app.config['MYSQL_DATABASE_PASSWORD'] = 'baza'
@@ -23,8 +21,7 @@ mysql = MySQL()
 #app.config['MYSQL_DATABASE_HOST'] = '127.0.0.1'
 #mysql.init_app(app)
 
-#Ako budemo, umesto cistih sql upita, koristili komande vezane za sqlalchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:baza@127.0.0.1/cryptoBank'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:baza@host.docker.internal/cryptoBank'
 db.init_app(app)
 ma.init_app(app)
 #db.create_all()
@@ -67,12 +64,6 @@ def SignUpUser(name, lastName, address, city, country, phoneNumber, email, passw
     db.session.add(u)
     db.session.commit()
 
-    #connection = mysql.connect()
-    #cursors = connection.cursor()
-    #cursors.execute("insert into user values (%s, %s, %s, %s, %s, %s, %s, %s, %d, %s, %d)", (name, lastName, address, city, country, phoneNumber, email, password, cardNumber, cardExpData, cardCode))
-    # INSERT INTO user VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-    #mysql.connect().commit();
-    #cursors.close();
 
 def UpdateUser(name, lastName, address, city, country, phoneNumber, email, password):
     u = getUser(email)

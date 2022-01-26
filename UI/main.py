@@ -60,7 +60,7 @@ def login():
 
         header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         body = json.dumps({'email': _email, 'password': _password})
-        req = requests.post("http://127.0.0.1:5001/login",
+        req = requests.post("http://host.docker.internal:5001/login",
                             data=body,
                             headers=header)
 
@@ -114,7 +114,7 @@ def sign_up():
             'cardCode': _cardCode,
             'amount': _amount
         })
-        req = requests.post("http://127.0.0.1:5001/sign_up",
+        req = requests.post("http://host.docker.internal:5001/sign_up",
                             data=body,
                             headers=header)
         #req = requests.post("http://0.0.0.0:5001/sign_up", data = body, headers = header)
@@ -151,7 +151,7 @@ def user():
     if _email == None:
         return "<p>User not logged in.</p>"
     header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-    req = requests.get("http://127.0.0.1:5001/user?email={}".format(_email),
+    req = requests.get("http://host.docker.internal:5001/user?email={}".format(_email),
                        headers=header)
     response = json.loads(jsonify(req.text).json)
 
@@ -228,7 +228,7 @@ def verify():
                 "email": mejl,
                 'amount': _amount
             })
-            req = requests.post("http://127.0.0.1:5001/verify",
+            req = requests.post("http://host.docker.internal:5001/verify",
                                 data=body,
                                 headers=header)
 
@@ -273,7 +273,7 @@ def kupi():
         'mejl': _mejl
     })
 
-    req = requests.post("http://127.0.0.1:5001/buyKripto",
+    req = requests.post("http://host.docker.internal:5001/buyKripto",
                         data=body,
                         headers=header)
     response = (req.json())
@@ -338,7 +338,7 @@ def editUser():
             'email': _email,
             'password': _newPassword1
         })
-        req = requests.post("http://127.0.0.1:5001/editUser",
+        req = requests.post("http://host.docker.internal:5001/editUser",
                             data=body,
                             headers=header)
 
@@ -357,7 +357,7 @@ def wallet():
         return "<p>User not logged in.</p>"
 
     header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-    req = requests.get("http://127.0.0.1:5001/wallet?email={}".format(_email),
+    req = requests.get("http://host.docker.internal:5001/wallet?email={}".format(_email),
                        headers=header)
     response = json.loads(jsonify(req.text).json)
 
@@ -379,7 +379,7 @@ def addMoney():
     if addedMoney != '' and addedMoney != "" and addedMoney != 0:
         header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         body = json.dumps({'email': email, 'addedMoney': addedMoney})
-        req = requests.post("http://127.0.0.1:5001/addMoney",
+        req = requests.post("http://host.docker.internal:5001/addMoney",
                             data=body,
                             headers=header)
         response = json.loads(jsonify(req.text).json)
@@ -402,7 +402,7 @@ def convertUSDToTether():
 
     header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     body = json.dumps({'email': email, 'usdAmount': usdAmount})
-    req = requests.post("http://127.0.0.1:5001/convertUSDToTether",
+    req = requests.post("http://host.docker.internal:5001/convertUSDToTether",
                         data=body,
                         headers=header)
 
@@ -437,7 +437,7 @@ def transaction():
             'valuta': _valuta
         })
 
-        req = requests.post("http://127.0.0.1:5001/newTransaction",
+        req = requests.post("http://host.docker.internal:5001/newTransaction",
                             data=body,
                             headers=header)
 
@@ -458,7 +458,7 @@ def transactionsTable():
 
     header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     body = json.dumps({'email': temp})
-    req = requests.post("http://127.0.0.1:5001/transactionsTable",
+    req = requests.post("http://host.docker.internal:5001/transactionsTable",
                         data=body,
                         headers=header)
 
@@ -475,7 +475,7 @@ def TransSortByTargetEmail():
 
     header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     body = json.dumps({'email': temp})
-    req = requests.post("http://127.0.0.1:5001/TransSortByTargetEmail",
+    req = requests.post("http://host.docker.internal:5001/TransSortByTargetEmail",
                         data=body,
                         headers=header)
 
@@ -492,7 +492,7 @@ def TransSortByTime():
 
     header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     body = json.dumps({'email': temp})
-    req = requests.post("http://127.0.0.1:5001/TransSortByTime",
+    req = requests.post("http://host.docker.internal:5001/TransSortByTime",
                         data=body,
                         headers=header)
 
@@ -534,7 +534,7 @@ def filterTransactions():
         'initTimeEnd': _initTimeEnd,
         'crypto': _crypto
     })
-    req = requests.post("http://127.0.0.1:5001/filterTransactions",
+    req = requests.post("http://host.docker.internal:5001/filterTransactions",
                         data=body,
                         headers=header)
 
@@ -547,4 +547,4 @@ def filterTransactions():
 
 if __name__ == "__main__":
     setattr(session, "user", None)
-    app.run(port=5000)
+    app.run(port=5000, host="0.0.0.0")
