@@ -46,7 +46,7 @@ def signup():
     _email = content['email']
 
     if userExists(_email):
-        retVal = {'message' : 'User with the sam email already signed up'}, 400
+        retVal = {'message' : 'User with the same email already signed up'}, 400
         return retVal
 
     _name = content['name']
@@ -55,13 +55,36 @@ def signup():
     _city = content['city']
     _country = content['country']
     _phoneNumber = str(content['phoneNumber'])
-   # _email = content['email']
     _password = str(content['password'])
     _cardNumber = content['cardNumber']
     _cardExpDate = content['cardExpDate']
     _cardCode = content['cardCode']
     _amount = content['amount']
 
+    if len(_name) <1 :
+        retVal = {'message' : 'Username must be longer.'}, 400    
+        return retVal
+    elif len(_lastName) <1 :
+        retVal = {'message' : 'Lastname must be longer.'}, 400    
+        return retVal
+    elif len(_address) <1 :
+        retVal = {'message' : 'Address must be longer.'}, 400    
+        return retVal
+    elif len(_city) <1 :
+        retVal = {'message' : 'City must be longer.'}, 400    
+        return retVal
+    elif len(_country) <1 :
+        retVal = {'message' : 'Country must be longer.'}, 400    
+        return retVal
+    elif int(_phoneNumber) < 1:
+        retVal = {'message' : 'You must enter your phone number.'}, 400    
+        return retVal
+    elif int(_password) < 1:
+        retVal = {'message' : 'You must enter your password'}, 400  
+        return retVal
+
+ 
+   
     SignUpUser(_name, _lastName, _address, _city, _country, _phoneNumber, _email, _password, _cardNumber, _cardExpDate, _cardCode, _amount)
     retVal = {'message' : 'User successfully signed up'}, 200
 
@@ -80,7 +103,6 @@ def login():
         retVal = {'message' : 'User successfully loged in'}, 200
         return retVal
 
-
 @app.route('/verify', methods=['POST'])
 def verify():
     content = flask.request.json
@@ -96,6 +118,7 @@ def verify():
     t = datetime.strptime(tt, "%Y-%m-%d")
     time = datetime.strptime(_expDate, "%Y-%m-%d")
 
+
     if len(_cardNum) != 16:
         retVal = {'message' : 'Wrong card number.'}, 400    
         return retVal
@@ -107,6 +130,12 @@ def verify():
         return retVal
     elif time <= t:
         retVal = {'message' : 'Your bank card expired.'}, 400  
+        return retVal
+    elif len(_name) < 2 :
+        retVal = {'message' : 'Name must be longer'}, 400    
+        return retVal
+    elif len(_expDate) < 2 :
+        retVal = {'message' : 'Date not correct'}, 400    
         return retVal
 
     newAmount = int(_amount) - 1
@@ -133,6 +162,9 @@ def kupi():
     _valutaPlacanja = content['valutaPlacanja']
     _mejl = content['mejl']
 
+    if len(_ulozeno) < 10:
+        retVal = {'message' : 'Morate uloziti vise novca.'}, 400    
+
     randNum = random.randint(0,1000)
     rawId = _mejl + current_time + _ulozeno + str(randNum)
     hashId = sha3.keccak_256(rawId.encode('utf-8')).hexdigest()
@@ -157,6 +189,8 @@ def kupi():
 
         retVal = {'message' : 'User does not have wallet.'}, 400    
     
+
+
     return retVal
 
 @app.route('/user', methods=['GET'])
@@ -190,7 +224,7 @@ def editUser():
     _email = content['email']
 
     if not userExists(_email):
-        retVal = {'message' : 'User with this email doesn-t exist'}, 400
+        retVal = {'message' : 'User with this email does not exist'}, 400
         return retVal
 
     _name = content['name']
@@ -215,6 +249,9 @@ def addMoney():
     if not userExists(_email):
         retVal = {'message' : 'User with this email doesn-t exist'}, 400
         return retVal
+    elif int(_addedMoney) < 2:
+        retVal = {'message' : 'You must add more money.'}, 400
+        return retVal
     
     AddMoneyToCard(_email, _addedMoney)
     retVal = {'message' : 'Money successfully added.'}, 200
@@ -227,7 +264,12 @@ def convertUSDToTether():
     usdAmount = content['usdAmount']
     boolean = ConvertUSDToTether(email, usdAmount)
 
-    if boolean == True:
+    kolicina = str(content['usdAmount'])
+
+    if int(kolicina) < 2:
+        retVal = {'message' : 'You must add more money to convert.'}, 400
+        return retVal
+    elif boolean == True:
         retVal = {'message' : 'Money successfully added.'}, 200
     else:
         retVal = {'message' : 'Not enough money on the account.'}, 400

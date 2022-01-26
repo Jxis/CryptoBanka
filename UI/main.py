@@ -15,7 +15,7 @@ from jinja2 import filters
 app = Flask(__name__)
 app.secret_key = 'key'
 
-############### CRYPTO EXTERNAL API ######################
+# region crypto API
 
 url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest'
 
@@ -37,7 +37,7 @@ session.headers.update(headers)
 #app.config["SESSION_PERMANENT"] = False
 #app.config["SESSION_TYPE"] = "filesystem"
 #Session(app)
-##########################################################
+# endregion
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -283,16 +283,16 @@ def kupi():
         response = session.get(url, params=parameters)
         user = getattr(session, "user")
         return render_template("home.html",
-                                response=json.loads(response.text)['data'],
-                                user=user,
-                                message = _message)
+                               response=json.loads(response.text)['data'],
+                               user=user,
+                               message=_message)
     else:
         response = session.get(url, params=parameters)
         user = getattr(session, "user")
         return render_template("home.html",
-                                response=json.loads(response.text)['data'],
-                                user=user,
-                                message = _message)
+                               response=json.loads(response.text)['data'],
+                               user=user,
+                               message=_message)
 
 
 @app.route('/editUser', methods=['GET', 'POST'])
@@ -362,8 +362,8 @@ def wallet():
     response = json.loads(jsonify(req.text).json)
 
     _code = req.status_code
-    if(_code == 401):
-        return render_template("verify.html", err = "User not verified.")
+    if (_code == 401):
+        return render_template("verify.html", err="User not verified.")
     if (_code == 200):
         setattr(session, "wallet_data", response)
         return render_template("wallet.html",
@@ -416,11 +416,13 @@ def convertUSDToTether():
     return redirect(url_for("user"), message=_message)
 
 
-@app.route('/transactions', methods=['GET','POST'])
+@app.route('/transactions', methods=['GET', 'POST'])
 def transaction():
     if request.method == 'GET':
         response = session.get(url, params=parameters)
-        return render_template('transactions.html', response=json.loads(response.text)['data'], user=getattr(session, 'user'))
+        return render_template('transactions.html',
+                               response=json.loads(response.text)['data'],
+                               user=getattr(session, 'user'))
     else:
         _emailSender = getattr(session, 'user')
         _emailReciver = request.form['email']
@@ -429,10 +431,10 @@ def transaction():
 
         header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         body = json.dumps({
-            'emailSender' : _emailSender,
-            'emailReciver' : _emailReciver,
-            'ulozeno' : _ulozeno,
-            'valuta' : _valuta
+            'emailSender': _emailSender,
+            'emailReciver': _emailReciver,
+            'ulozeno': _ulozeno,
+            'valuta': _valuta
         })
 
         req = requests.post("http://127.0.0.1:5001/newTransaction",
@@ -444,55 +446,62 @@ def transaction():
         _code = req.status_code
 
         valute = session.get(url, params=parameters)
-        return render_template('transactions.html', response=json.loads(valute.text)['data'], user=getattr(session, 'user'), message = response["message"])
+        return render_template('transactions.html',
+                               response=json.loads(valute.text)['data'],
+                               user=getattr(session, 'user'),
+                               message=response["message"])
+
 
 @app.route('/transactionsTable')
 def transactionsTable():
     temp = getattr(session, "user")
 
-    header = {'Content-type': 'application/json','Accept': 'text/plain'}
-    body = json.dumps({
-                'email': temp
-            })
+    header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    body = json.dumps({'email': temp})
     req = requests.post("http://127.0.0.1:5001/transactionsTable",
-                                data=body,
-                                headers=header)
+                        data=body,
+                        headers=header)
 
     response = json.loads(jsonify(req.text).json)
 
-    return render_template("transactionsTable.html", message = response, l = len(response))
+    return render_template("transactionsTable.html",
+                           message=response,
+                           l=len(response))
+
 
 @app.route("/TransSortByTargetEmail", methods=['GET'])
 def TransSortByTargetEmail():
     temp = getattr(session, "user")
 
-    header = {'Content-type': 'application/json','Accept': 'text/plain'}
-    body = json.dumps({
-                'email': temp
-            })
+    header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    body = json.dumps({'email': temp})
     req = requests.post("http://127.0.0.1:5001/TransSortByTargetEmail",
-                                data=body,
-                                headers=header)
+                        data=body,
+                        headers=header)
 
     response = json.loads(jsonify(req.text).json)
 
-    return render_template("transactionsTable.html", message = response, l = len(response))
+    return render_template("transactionsTable.html",
+                           message=response,
+                           l=len(response))
+
 
 @app.route("/TransSortByTime", methods=['GET'])
 def TransSortByTime():
     temp = getattr(session, "user")
 
-    header = {'Content-type': 'application/json','Accept': 'text/plain'}
-    body = json.dumps({
-                'email': temp
-            })
+    header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    body = json.dumps({'email': temp})
     req = requests.post("http://127.0.0.1:5001/TransSortByTime",
-                                data=body,
-                                headers=header)
+                        data=body,
+                        headers=header)
 
     response = json.loads(jsonify(req.text).json)
 
-    return render_template("transactionsTable.html", message = response, l = len(response))
+    return render_template("transactionsTable.html",
+                           message=response,
+                           l=len(response))
+
 
 @app.route("/filterTransactions", methods=['POST'])
 def filterTransactions():
@@ -517,21 +526,23 @@ def filterTransactions():
     if 'T' in _initTimeEnd:
         _initTimeEnd = _initTimeEnd.replace("T", " ")
 
-    header = {'Content-type': 'application/json','Accept': 'text/plain'}
+    header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     body = json.dumps({
-                'email': temp,
-                'targetEmail' : _targetEmail,
-                'initTimeStart' : _initTimeStart, 
-                'initTimeEnd' : _initTimeEnd,
-                'crypto' : _crypto
-            })
+        'email': temp,
+        'targetEmail': _targetEmail,
+        'initTimeStart': _initTimeStart,
+        'initTimeEnd': _initTimeEnd,
+        'crypto': _crypto
+    })
     req = requests.post("http://127.0.0.1:5001/filterTransactions",
-                                data=body,
-                                headers=header)
+                        data=body,
+                        headers=header)
 
     response = json.loads(jsonify(req.text).json)
 
-    return render_template("transactionsTable.html", message = response, l = len(response))
+    return render_template("transactionsTable.html",
+                           message=response,
+                           l=len(response))
 
 
 if __name__ == "__main__":
