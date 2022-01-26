@@ -341,7 +341,7 @@ def transaction():
 
 def TransactionProcess(current_time, hashId, _emailSender, _emailReciever, _valuta, _ulozeno):
     #mora da se kreira nova konekcija sa bazom jer svaki proces i nit zauzima novi memorijski prostor za sebe 
-    mySQL = mysql.connector.connect(host = "localhost", user="root", password="baza", db="cryptoBank")
+    mySQL = mysql.connector.connect(host = "host.docker.internal", user="root", password="baza", db="cryptoBank")
     
     gas = 0.05 * float(_ulozeno)
     #AddTransactionToDB(hashId, _emailSender, current_time, 'In progress', _emailReciever, _valuta, _ulozeno, float(_ulozeno)*0.05, 'transacted')
@@ -553,7 +553,7 @@ def WaitForApprovalThread(q, _emailSender, _emailReciever, _valuta, _ulozeno):
         q.put(false)
         return 
 
-    mySQL = mysql.connector.connect(host = "localhost", user="root", password="baza", db="cryptoBank")
+    mySQL = mysql.connector.connect(host = "host.docker.internal", user="root", password="baza", db="cryptoBank")
     
     c2 = mySQL.cursor()
     c2.execute(''' SELECT name FROM user WHERE email = %s ''', (_emailReciever,))

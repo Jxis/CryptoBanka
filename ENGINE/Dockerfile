@@ -1,6 +1,6 @@
 FROM python
 
-WORKDIR /dokerizacijaENGINE
+WORKDIR /dresENGINE
 
 COPY requirements.txt ./
 

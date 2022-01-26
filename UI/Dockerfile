@@ -1,6 +1,6 @@
 FROM python
 
-WORKDIR /dokerizacijaUI
+WORKDIR /dresUI
 
 COPY requirements.txt ./
 
