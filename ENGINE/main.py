@@ -238,6 +238,8 @@ def editUser():
     _country = content['country']
     _phoneNumber = content['phoneNumber']
     _password = content['password']
+
+    
   
     UpdateUser(_name, _lastName, _address, _city, _country, _phoneNumber, _email, _password)
     retVal = {'message' : 'User successfully updated.'}, 200
@@ -253,7 +255,8 @@ def addMoney():
     if not userExists(_email):
         retVal = {'message' : 'User with this email doesn-t exist'}, 400
         return retVal
-    elif int(_addedMoney) < 2:
+
+    if _addedMoney == "":
         retVal = {'message' : 'You must add more money.'}, 400
         return retVal
     
@@ -270,10 +273,11 @@ def convertUSDToTether():
 
     kolicina = str(content['usdAmount'])
 
-    if int(kolicina) < 2:
-        retVal = {'message' : 'You must add more money to convert.'}, 400
+    if usdAmount == "":
+        retVal = {'message' : 'You should put some money before converting.'}, 400
         return retVal
-    elif boolean == True:
+    
+    if boolean == True:
         retVal = {'message' : 'Money successfully added.'}, 200
     else:
         retVal = {'message' : 'Not enough money on the account.'}, 400

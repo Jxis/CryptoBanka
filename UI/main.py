@@ -151,8 +151,9 @@ def user():
     if _email == None:
         return "<p>User not logged in.</p>"
     header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-    req = requests.get("http://host.docker.internal:5001/user?email={}".format(_email),
-                       headers=header)
+    req = requests.get(
+        "http://host.docker.internal:5001/user?email={}".format(_email),
+        headers=header)
     response = json.loads(jsonify(req.text).json)
 
     name = response['name']
@@ -357,8 +358,9 @@ def wallet():
         return "<p>User not logged in.</p>"
 
     header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-    req = requests.get("http://host.docker.internal:5001/wallet?email={}".format(_email),
-                       headers=header)
+    req = requests.get(
+        "http://host.docker.internal:5001/wallet?email={}".format(_email),
+        headers=header)
     response = json.loads(jsonify(req.text).json)
 
     _code = req.status_code
@@ -391,29 +393,32 @@ def addMoney():
         return redirect(url_for("user"), message=_message)
     else:
         _message = "Wrong input"
-
-    return redirect(url_for(user))
+        return redirect(url_for("user"))
 
 
 @app.route('/convertUSDToTether', methods=['POST'])
 def convertUSDToTether():
     email = getattr(session, 'user')
     usdAmount = request.form['usdToTetherAmount']
+    if usdAmount != '' and usdAmount != "" and usdAmount != 0:
+        header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+        body = json.dumps({'email': email, 'usdAmount': usdAmount})
+        req = requests.post(
+            "http://host.docker.internal:5001/convertUSDToTether",
+            data=body,
+            headers=header)
 
-    header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-    body = json.dumps({'email': email, 'usdAmount': usdAmount})
-    req = requests.post("http://host.docker.internal:5001/convertUSDToTether",
-                        data=body,
-                        headers=header)
+        #response = (req.json())
+        response = json.loads(jsonify(req.text).json)
 
-    response = (req.json())
-    #response = json.loads(jsonify(req.text).json)
-
-    _message = response['message']
-    _code = req.status_code
-    if (_code == 200):
+        _message = response['message']
+        _code = req.status_code
+        if (_code == 200):
+            return redirect(url_for("user"))
+        return redirect(url_for("user"), message=_message)
+    else:
+        _message = "Wrong input"
         return redirect(url_for("user"))
-    return redirect(url_for("user"), message=_message)
 
 
 @app.route('/transactions', methods=['GET', 'POST'])
@@ -475,9 +480,10 @@ def TransSortByTargetEmail():
 
     header = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     body = json.dumps({'email': temp})
-    req = requests.post("http://host.docker.internal:5001/TransSortByTargetEmail",
-                        data=body,
-                        headers=header)
+    req = requests.post(
+        "http://host.docker.internal:5001/TransSortByTargetEmail",
+        data=body,
+        headers=header)
 
     response = json.loads(jsonify(req.text).json)
 
